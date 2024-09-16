@@ -40,7 +40,7 @@ function Login() {
                 className="login-input-style"
               />
             </div>
-            <div className="relative">
+            <div className="relative focus-within:text-blue-2 text-blue">
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
@@ -49,12 +49,15 @@ function Login() {
               />
               <span
                 className="absolute right-2 top-4 cursor-pointer"
-                onClick={() => setShowPassword(!showPassword)}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  setShowPassword(!showPassword);
+                }}
               >
                 {showPassword ? (
-                  <VisibilityOutlinedIcon className="text-blue" />
+                  <VisibilityOutlinedIcon />
                 ) : (
-                  <VisibilityOffOutlinedIcon className="text-blue" />
+                  <VisibilityOffOutlinedIcon />
                 )}
               </span>
             </div>

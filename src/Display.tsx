@@ -12,14 +12,15 @@ function Display() {
   }
 
   return (
-    <div>
-      <div>Display Component</div>
-
-      <div
-        onClick={logout}
-        className={`cursor-pointer w-fit h-fit hover:bg-blue-1`}
-      >
-        <LogoutOutlinedIcon />
+    <div className={`bg-blue w-screen h-screen text-white`}>
+      <div className={`w-full text-center`}>Display Component</div>
+      <div className={`absolute bottom-2 left-0`}>
+        <div
+          onClick={logout}
+          className={`cursor-pointer w-fit h-fit hover:bg-blue-1 `}
+        >
+          <LogoutOutlinedIcon />
+        </div>
       </div>
     </div>
   );
