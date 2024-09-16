@@ -1,5 +1,6 @@
 import useAuth from "./useAuth";
 import { useNavigate } from "react-router-dom";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 
 function Display() {
   useAuth();
@@ -14,7 +15,12 @@ function Display() {
     <div>
       <div>Display Component</div>
 
-      <button onClick={logout}>logout</button>
+      <div
+        onClick={logout}
+        className={`cursor-pointer w-fit h-fit hover:bg-blue-1`}
+      >
+        <LogoutOutlinedIcon />
+      </div>
     </div>
   );
 }

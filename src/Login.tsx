@@ -1,9 +1,11 @@
-import React from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./index.css";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 
 function Login() {
   const navigate = useNavigate();
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -22,22 +24,45 @@ function Login() {
   };
 
   return (
-    <div className={`flex flex-col justify-center items-center h-screen`}>
-      <div className={`flex flex-col justify-center items-center p-3`}>
-        <h1>Virtual Window for Workplace Well-being</h1>
-        <br />
-        <div className={`border-2 border-black w-fit p-3`}>
+    <div className="flex flex-col justify-center items-center h-screen w-screen bg-blue">
+      <div className="flex flex-col justify-center items-center p-10 bg-yellow rounded-lg">
+        <div className="font-bold text-3xl text-blue select-none">
+          Virtual <br />
+          Window
+        </div>
+        <div>
           <form onSubmit={handleSubmit}>
-            <div>
-              Username:
-              <input type="text" name="username" />
+            <div className="relative mt-3">
+              <input
+                type="text"
+                name="username"
+                placeholder="Username"
+                className="login-input-style"
+              />
             </div>
-            <div>
-              Password:
-              <input type="password" name="password" />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                placeholder="Password"
+                className="login-input-style pr-10"
+              />
+              <span
+                className="absolute right-2 top-4 cursor-pointer"
+                onClick={() => setShowPassword(!showPassword)}
+              >
+                {showPassword ? (
+                  <VisibilityOutlinedIcon className="text-blue" />
+                ) : (
+                  <VisibilityOffOutlinedIcon className="text-blue" />
+                )}
+              </span>
             </div>
-            <button type="submit" className={`bg-blue-500`}>
-              Login
+            <button
+              type="submit"
+              className="bg-blue w-full mt-3 text-white p-1 rounded-3xl hover:bg-blue-2 uppercase"
+            >
+              login
             </button>
           </form>
         </div>
