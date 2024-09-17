@@ -1,0 +1,11 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.login-input-style {
+    @apply w-full bg-transparent border-2 border-blue p-1 mt-3 placeholder-blue text-blue rounded focus:outline-none focus:border-blue-2 focus:placeholder-blue-2 focus:text-blue-2;
+}
+
+.display-buttons-style {
+    @apply hover:text-yellow-1 p-1 rounded cursor-pointer ml-1;
+}
