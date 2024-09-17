@@ -22,8 +22,8 @@ function Login() {
 
     //TODO: should connect to flask auth, now just for demo
     if (username.value === "admin" && password.value === "admin") {
-      const session = "valid-session-token"; // Replace with session token return from flask
-      localStorage.setItem("session", session);
+      const session = "s"; // Replace with session token return from flask
+      sessionStorage.setItem("session", session);
       navigate("/");
     } else {
       alert("admin admin");
