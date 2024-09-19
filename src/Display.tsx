@@ -17,6 +17,7 @@ function Display() {
   const [togglePanel, setTogglePanel] = useState(false);
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
 
   // Fullscreen event listener
   useEffect(() => {
@@ -40,8 +41,11 @@ function Display() {
 
   //logout function
   function handleLogout() {
-    localStorage.removeItem("session");
-    navigate("/login");
+    setIsFadingOut(true);
+    setTimeout(() => {
+      localStorage.removeItem("session");
+      navigate("/login");
+    }, 1000); // Match the duration of the fade-out animation
   }
 
   //TODO: Bluetooth Settings
@@ -65,12 +69,12 @@ function Display() {
   }
 
   return (
-    <div className={`bg-blue w-screen h-screen text-white`}>
+    <div className={`bg-blue w-screen h-screen text-white `}>
       <div className={`w-full h-full absolute`}>
         {isPlaying && (
           <ReactPlayer
             url="https://youtu.be/3c-rhqg4nuY?si=hLoVJSOIA22a6eEG"
-            className="w-full h-full"
+            className={`w-full h-full fade-in ${isFadingOut ? "fade-out" : ""}`}
             playing
             loop
             muted
@@ -81,7 +85,7 @@ function Display() {
         {!isPlaying && (
           <img
             src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
-            className={`w-full h-full object-cover`}
+            className={`w-full h-full object-cover fade-in ${isFadingOut ? "fade-out" : ""}`}
             alt={`image`}
           />
         )}
