@@ -2,13 +2,16 @@ import { useState, useEffect } from "react";
 import useAuth from "./Components/useAuth.tsx";
 import { useNavigate } from "react-router-dom";
 import CustomizedTooltip from "./Components/CustomizedTooltip.tsx";
-import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import FullscreenOutlinedIcon from "@mui/icons-material/FullscreenOutlined";
-import FullscreenExitOutlinedIcon from "@mui/icons-material/FullscreenExitOutlined";
-import VideoSettingsOutlinedIcon from "@mui/icons-material/VideoSettingsOutlined";
-import BluetoothDisabledOutlinedIcon from "@mui/icons-material/BluetoothDisabledOutlined";
-import BluetoothConnectedOutlinedIcon from "@mui/icons-material/BluetoothConnectedOutlined";
+import {
+  LogoutOutlined as LogoutOutlinedIcon,
+  FullscreenOutlined as FullscreenOutlinedIcon,
+  FullscreenExitOutlined as FullscreenExitOutlinedIcon,
+  VideoSettingsOutlined as VideoSettingsOutlinedIcon,
+  BluetoothDisabledOutlined as BluetoothDisabledOutlinedIcon,
+  BluetoothConnectedOutlined as BluetoothConnectedOutlinedIcon,
+} from "@mui/icons-material";
 import ReactPlayer from "react-player";
+import Clock from "./Components/Clock.tsx";
 
 function Display() {
   useAuth();
@@ -31,19 +34,11 @@ function Display() {
     };
   }, []);
 
-  //disable scroll
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
-
   //logout function
   function handleLogout() {
     setIsFadingOut(true);
     setTimeout(() => {
-      localStorage.removeItem("session");
+      sessionStorage.removeItem("session");
       navigate("/login");
     }, 1000); // Match the duration of the fade-out animation
   }
@@ -71,6 +66,18 @@ function Display() {
   return (
     <div className={`bg-blue w-screen h-screen text-white `}>
       <div className={`w-full h-full absolute`}>
+        <div className={`absolute bottom-0 right-0 flex`}>
+          <div
+            className={`absolute z-30 w-full h-full bg-blue blur opacity-50`}
+          ></div>
+          <div className={`z-40 px-5 py-3 w-full h-full select-none`}>
+            <Clock
+              fontStyle={`text-yellow font-bold text-[40px]`}
+              position={``}
+            />
+          </div>
+        </div>
+
         {isPlaying && (
           <ReactPlayer
             url="https://youtu.be/3c-rhqg4nuY?si=hLoVJSOIA22a6eEG"
