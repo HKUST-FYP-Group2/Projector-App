@@ -27,6 +27,10 @@
     animation: fadeIn 1s ease-in-out;
 }
 
+.fade-in-short {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
 @keyframes fadeIn-20 {
     from {
         opacity: 0;
@@ -51,4 +55,8 @@
 
 .fade-out {
     animation: fadeOut 1s ease-in-out;
+}
+
+.fade-out-short {
+    animation: fadeOut 0.3s ease-in-out;
 }

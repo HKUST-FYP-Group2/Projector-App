@@ -13,6 +13,12 @@ function Display() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
 
+  const [clockSettings, setClockSettings] = useState({
+    showClock: true,
+    showSecond: false,
+    hour12: true,
+  });
+
   // Fullscreen event listener
   useEffect(() => {
     const handleFullScreenChange = () => {
@@ -46,12 +52,15 @@ function Display() {
         <div
           className={`absolute z-30 w-full h-full bg-blue blur opacity-60`}
         ></div>
-        <div className={`z-40 px-5 py-3 w-full h-full select-none`}>
-          <Clock
-            fontStyle={`text-yellow font-bold text-[40px]`}
-            position={``}
-          />
-        </div>
+        {clockSettings.showClock && (
+          <div className={`z-40 px-5 py-3 w-full h-full select-none`}>
+            <Clock
+              fontStyle={`text-yellow font-bold text-[40px]`}
+              position={``}
+              clockSettings={clockSettings}
+            />
+          </div>
+        )}
       </div>
 
       <div className={`w-full h-full absolute z-0`}>
@@ -75,18 +84,17 @@ function Display() {
         )}
       </div>
 
-      {showSettingPanel && (
-        <SettingsPanel
-          showSettingPanel={showSettingPanel}
-          setShowSettingPanel={setShowSettingPanel}
-          handleVideoSettings={handleVideoSettings}
-        />
-      )}
+      <SettingsPanel
+        showSettingPanel={showSettingPanel}
+        setShowSettingPanel={setShowSettingPanel}
+        handleVideoSettings={handleVideoSettings}
+        clockSettings={clockSettings}
+        setClockSettings={setClockSettings}
+      />
 
       <SettingsBar
         isFullScreen={isFullScreen}
         handleFullScreen={handleFullScreen}
-        showSettingPanel={showSettingPanel}
         setShowSettingPanel={setShowSettingPanel}
         setIsFadingOut={setIsFadingOut}
       />

@@ -4,7 +4,7 @@ import {
   BluetoothDisabledOutlined as BluetoothDisabledOutlinedIcon,
   FullscreenExitOutlined as FullscreenExitOutlinedIcon,
   FullscreenOutlined as FullscreenOutlinedIcon,
-  LogoutOutlined as LogoutOutlinedIcon,
+  Logout as LogoutIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
@@ -13,7 +13,6 @@ import { useNavigate } from "react-router-dom";
 interface ControlBarProps {
   isFullScreen: boolean;
   handleFullScreen: () => void;
-  showSettingPanel: boolean;
   setShowSettingPanel: (value: boolean) => void;
   setIsFadingOut: (value: boolean) => void;
 }
@@ -21,7 +20,6 @@ interface ControlBarProps {
 const SettingsBar = ({
   isFullScreen,
   handleFullScreen,
-  showSettingPanel,
   setShowSettingPanel,
   setIsFadingOut,
 }: ControlBarProps) => {
@@ -58,7 +56,7 @@ const SettingsBar = ({
       >
         <div onClick={handleLogout} className={`display-buttons-style`}>
           <CustomizedTooltip title={`Logout`}>
-            <LogoutOutlinedIcon fontSize="medium" />
+            <LogoutIcon fontSize="medium" />
           </CustomizedTooltip>
         </div>
         <div
@@ -81,7 +79,7 @@ const SettingsBar = ({
           </CustomizedTooltip>
         </div>
         <div
-          onClick={() => setShowSettingPanel(!showSettingPanel)}
+          onClick={() => setShowSettingPanel(true)}
           className={`display-buttons-style`}
         >
           <CustomizedTooltip title={`Settings`}>
