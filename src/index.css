@@ -9,3 +9,46 @@
 .display-buttons-style {
     @apply hover:text-yellow-1 p-1 rounded cursor-pointer ml-1;
 }
+
+.settings-panel-left-div {
+    @apply mt-2 cursor-pointer hover:bg-blue-3 px-2 text-gray hover:text-white select-none py-1 rounded;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+.fade-in {
+    animation: fadeIn 1s ease-in-out;
+}
+
+@keyframes fadeIn-20 {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.2;
+    }
+}
+
+.fade-in-20 {
+    animation: fadeIn-20 1s ease-in-out;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
+    }
+}
+
+.fade-out {
+    animation: fadeOut 1s ease-in-out;
+}

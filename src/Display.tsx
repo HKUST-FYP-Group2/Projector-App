@@ -1,22 +1,17 @@
 import { useState, useEffect } from "react";
 import useAuth from "./Components/useAuth.tsx";
-import { useNavigate } from "react-router-dom";
-import CustomizedTooltip from "./Components/CustomizedTooltip.tsx";
-import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
-import FullscreenOutlinedIcon from "@mui/icons-material/FullscreenOutlined";
-import FullscreenExitOutlinedIcon from "@mui/icons-material/FullscreenExitOutlined";
-import VideoSettingsOutlinedIcon from "@mui/icons-material/VideoSettingsOutlined";
-import BluetoothDisabledOutlinedIcon from "@mui/icons-material/BluetoothDisabledOutlined";
-import BluetoothConnectedOutlinedIcon from "@mui/icons-material/BluetoothConnectedOutlined";
 import ReactPlayer from "react-player";
+import Clock from "./Components/Clock.tsx";
+import SettingsBar from "./Components/SettingsBar.tsx";
+import SettingsPanel from "./Components/SettingsPanel.tsx";
 
 function Display() {
   useAuth();
-  const navigate = useNavigate();
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [togglePanel, setTogglePanel] = useState(false);
-  const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
+  const [isFadingOut, setIsFadingOut] = useState(false);
+
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showSettingPanel, setShowSettingPanel] = useState(false);
 
   // Fullscreen event listener
   useEffect(() => {
@@ -30,30 +25,6 @@ function Display() {
     };
   }, []);
 
-  //disable scroll
-  useEffect(() => {
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "auto";
-    };
-  }, []);
-
-  //logout function
-  function handleLogout() {
-    localStorage.removeItem("session");
-    navigate("/login");
-  }
-
-  //TODO: Bluetooth Settings
-  function handleBluetoothSettings() {
-    setIsBluetoothConnected(!isBluetoothConnected);
-  }
-
-  //TODO: Video Settings
-  function handleVideoSettings() {
-    setIsPlaying(!isPlaying);
-  }
-
   // Fullscreen function
   function handleFullScreen() {
     const element = document.documentElement;
@@ -64,13 +35,30 @@ function Display() {
     }
   }
 
+  //TODO: Video Settings
+  function handleVideoSettings() {
+    setIsPlaying(!isPlaying);
+  }
+
   return (
-    <div className={`bg-blue w-screen h-screen text-white`}>
-      <div className={`w-full h-full absolute`}>
+    <div className={`bg-blue w-screen h-screen text-white `}>
+      <div className={`absolute bottom-0 right-0 flex`}>
+        <div
+          className={`absolute z-30 w-full h-full bg-blue blur opacity-60`}
+        ></div>
+        <div className={`z-40 px-5 py-3 w-full h-full select-none`}>
+          <Clock
+            fontStyle={`text-yellow font-bold text-[40px]`}
+            position={``}
+          />
+        </div>
+      </div>
+
+      <div className={`w-full h-full absolute z-0`}>
         {isPlaying && (
           <ReactPlayer
             url="https://youtu.be/3c-rhqg4nuY?si=hLoVJSOIA22a6eEG"
-            className="w-full h-full"
+            className={`w-full h-full fade-in ${isFadingOut ? "fade-out" : ""}`}
             playing
             loop
             muted
@@ -81,68 +69,27 @@ function Display() {
         {!isPlaying && (
           <img
             src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
-            className={`w-full h-full object-cover`}
+            className={`w-full h-full object-cover fade-in ${isFadingOut ? "fade-out" : ""}`}
             alt={`image`}
           />
         )}
       </div>
-      <div
-        className={`absolute flex bottom-2 left-0 opacity-50 hover:opacity-100 pl-2 pt-10 pr-10 `}
-        onMouseOver={() => {
-          setTogglePanel(true);
-        }}
-        onMouseLeave={() => {
-          setTogglePanel(false);
-        }}
-      >
-        <div
-          className={`flex rounded-xl pt-1 pb-1 pr-2 pl-2 ${togglePanel ? `bg-blue bg-opacity-60 text-gold` : `bg-transparent text-white`}`}
-        >
-          <div onClick={handleLogout} className={`display-buttons-style`}>
-            <CustomizedTooltip title={`Logout`}>
-              <LogoutOutlinedIcon fontSize="medium" />
-            </CustomizedTooltip>
-          </div>
-          <div
-            onClick={handleBluetoothSettings}
-            className={`display-buttons-style`}
-          >
-            <CustomizedTooltip
-              title={
-                isBluetoothConnected
-                  ? `Remote Control Connected`
-                  : `Remote Control Not Connected`
-              }
-              key={isBluetoothConnected ? `connected` : `unconnected`}
-            >
-              {isBluetoothConnected ? (
-                <BluetoothConnectedOutlinedIcon fontSize="medium" />
-              ) : (
-                <BluetoothDisabledOutlinedIcon fontSize="medium" />
-              )}
-            </CustomizedTooltip>
-          </div>
-          <div
-            onClick={handleVideoSettings}
-            className={`display-buttons-style`}
-          >
-            <CustomizedTooltip title={`Video Settings`}>
-              <VideoSettingsOutlinedIcon fontSize="medium" />
-            </CustomizedTooltip>
-          </div>
-          <div onClick={handleFullScreen} className={`display-buttons-style`}>
-            <CustomizedTooltip
-              title={`${isFullScreen ? `Exit Fullscreen` : `Fullscreen`}`}
-            >
-              {isFullScreen ? (
-                <FullscreenExitOutlinedIcon fontSize="medium" />
-              ) : (
-                <FullscreenOutlinedIcon fontSize="medium" />
-              )}
-            </CustomizedTooltip>
-          </div>
-        </div>
-      </div>
+
+      {showSettingPanel && (
+        <SettingsPanel
+          showSettingPanel={showSettingPanel}
+          setShowSettingPanel={setShowSettingPanel}
+          handleVideoSettings={handleVideoSettings}
+        />
+      )}
+
+      <SettingsBar
+        isFullScreen={isFullScreen}
+        handleFullScreen={handleFullScreen}
+        showSettingPanel={showSettingPanel}
+        setShowSettingPanel={setShowSettingPanel}
+        setIsFadingOut={setIsFadingOut}
+      />
     </div>
   );
 }
