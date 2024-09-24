@@ -30,7 +30,7 @@ const Clock = ({ fontStyle, position, clockSettings }: ClockProps) => {
       setTime(formatTime(new Date()));
     }, 1000);
     return () => clearInterval(interval);
-  }, [clockSettings]);
+  }, [clockSettings, formatTime]);
 
   return <div className={`flex ${fontStyle} ${position}`}>{time}</div>;
 };

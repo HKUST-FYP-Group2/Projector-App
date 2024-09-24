@@ -14,6 +14,8 @@ import RightPanelContent from "./SettingsPanelRight.tsx";
 interface SettingsPanelProps {
   showSettingPanel: boolean;
   setShowSettingPanel: (value: boolean) => void;
+  isClosingSettingsPanel: boolean;
+  setIsClosingSettingsPanel: (value: boolean) => void;
   handleVideoSettings: () => void;
   clockSettings: {
     showClock: boolean;
@@ -30,12 +32,13 @@ interface SettingsPanelProps {
 const SettingsPanel = ({
   showSettingPanel,
   setShowSettingPanel,
+  isClosingSettingsPanel,
+  setIsClosingSettingsPanel,
   handleVideoSettings,
   clockSettings,
   setClockSettings,
 }: SettingsPanelProps) => {
   const [selectedItem, setSelectedItem] = useState<string>("");
-  const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
 
   const items = [
     { icon: VideoSettingsOutlinedIcon, label: "Video" },
@@ -47,7 +50,6 @@ const SettingsPanel = ({
   ];
 
   useEffect(() => {
-    console.log(isClosingSettingsPanel);
     if (isClosingSettingsPanel) {
       setTimeout(() => {
         setShowSettingPanel(false);

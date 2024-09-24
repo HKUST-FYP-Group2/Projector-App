@@ -12,6 +12,7 @@ function Display() {
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
+  const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
 
   const [clockSettings, setClockSettings] = useState({
     showClock: true,
@@ -55,7 +56,7 @@ function Display() {
         {clockSettings.showClock && (
           <div className={`z-40 px-5 py-3 w-full h-full select-none`}>
             <Clock
-              fontStyle={`text-yellow font-bold text-[40px]`}
+              fontStyle={`text-yellow font-bold text-[30px]`}
               position={``}
               clockSettings={clockSettings}
             />
@@ -87,6 +88,8 @@ function Display() {
       <SettingsPanel
         showSettingPanel={showSettingPanel}
         setShowSettingPanel={setShowSettingPanel}
+        isClosingSettingsPanel={isClosingSettingsPanel}
+        setIsClosingSettingsPanel={setIsClosingSettingsPanel}
         handleVideoSettings={handleVideoSettings}
         clockSettings={clockSettings}
         setClockSettings={setClockSettings}
@@ -95,7 +98,9 @@ function Display() {
       <SettingsBar
         isFullScreen={isFullScreen}
         handleFullScreen={handleFullScreen}
+        showSettingPanel={showSettingPanel}
         setShowSettingPanel={setShowSettingPanel}
+        setIsClosingSettingsPanel={setIsClosingSettingsPanel}
         setIsFadingOut={setIsFadingOut}
       />
     </div>
