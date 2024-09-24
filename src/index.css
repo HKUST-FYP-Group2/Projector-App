@@ -10,6 +10,10 @@
     @apply hover:text-yellow-1 p-1 rounded cursor-pointer ml-1;
 }
 
+.settings-panel-left-div {
+    @apply mt-2 cursor-pointer hover:bg-blue-3 px-2 text-gray hover:text-white select-none py-1 rounded;
+}
+
 @keyframes fadeIn {
     from {
         opacity: 0;
