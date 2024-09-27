@@ -10,6 +10,7 @@ import {
 import { useEffect, useState } from "react";
 import LeftPanelItem from "./SettingsPanelLeft.tsx";
 import RightPanelContent from "./SettingsPanelRight.tsx";
+import Settings from "../data/settings.ts";
 
 interface SettingsPanelProps {
   showSettingPanel: boolean;
@@ -17,16 +18,8 @@ interface SettingsPanelProps {
   isClosingSettingsPanel: boolean;
   setIsClosingSettingsPanel: (value: boolean) => void;
   handleVideoSettings: () => void;
-  clockSettings: {
-    showClock: boolean;
-    showSecond: boolean;
-    hour12: boolean;
-  };
-  setClockSettings: (settings: {
-    showClock: boolean;
-    showSecond: boolean;
-    hour12: boolean;
-  }) => void;
+  settings: Settings;
+  setSettings: (value: Settings) => void;
 }
 
 const SettingsPanel = ({
@@ -35,11 +28,12 @@ const SettingsPanel = ({
   isClosingSettingsPanel,
   setIsClosingSettingsPanel,
   handleVideoSettings,
-  clockSettings,
-  setClockSettings,
+  settings,
+  setSettings,
 }: SettingsPanelProps) => {
   const [selectedItem, setSelectedItem] = useState<string>("");
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const items = [
     { icon: VideoSettingsOutlinedIcon, label: "Video" },
     { icon: SettingsBrightnessIcon, label: "Brightness" },
@@ -57,6 +51,31 @@ const SettingsPanel = ({
       }, 290);
     }
   }, [isClosingSettingsPanel, showSettingPanel, setShowSettingPanel]);
+
+  //keyboard listener
+  useEffect(() => {
+    const handleKeyDown = (event: KeyboardEvent) => {
+      setSelectedItem((prevSelectedItem) => {
+        const currentIndex = items.findIndex(
+          (item) => item.label === prevSelectedItem,
+        );
+        if (event.key === "ArrowUp") {
+          const newIndex = (currentIndex - 1 + items.length) % items.length;
+          return items[newIndex].label;
+        } else if (event.key === "ArrowDown") {
+          const newIndex = (currentIndex + 1) % items.length;
+          return items[newIndex].label;
+        }
+        return prevSelectedItem;
+      });
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [items]);
+
   if (!showSettingPanel) return null;
 
   return (
@@ -69,7 +88,7 @@ const SettingsPanel = ({
         onClick={(e) => e.stopPropagation()}
       >
         <div
-          className={`h-fit w-full bg-blue-4 text-white p-[20px] flex ${isClosingSettingsPanel ? "fade-out-short" : "fade-in-short"}`}
+          className={`h-fit w-full bg-blue text-white p-[20px] flex ${isClosingSettingsPanel ? "fade-out-short" : "fade-in-short"}`}
         >
           <div className={`h-full w-[30%] flex flex-col`}>
             <div className={`w-full h-fit flex`}>
@@ -93,9 +112,9 @@ const SettingsPanel = ({
           </div>
           <RightPanelContent
             selectedItem={selectedItem}
-            clockSettings={clockSettings}
-            setClockSettings={setClockSettings}
             handleVideoSettings={handleVideoSettings}
+            settings={settings}
+            setSettings={setSettings}
           />
         </div>
       </div>

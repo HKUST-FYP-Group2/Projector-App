@@ -1,0 +1,9 @@
+{
+  "brightness": 100,
+  "clock": {
+    "showClock": true,
+    "showSecond": false,
+    "hour12": true
+  }
+
+}

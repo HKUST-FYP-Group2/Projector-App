@@ -12,6 +12,17 @@ function App() {
     };
   }, []);
 
+  //disable right click
+  // useEffect(() => {
+  //   const handleContextMenu = (event: MouseEvent) => {
+  //     event.preventDefault();
+  //   };
+  //   document.addEventListener("contextmenu", handleContextMenu);
+  //   return () => {
+  //     document.removeEventListener("contextmenu", handleContextMenu);
+  //   };
+  // }, []);
+
   return (
     <Routes>
       <Route path="/" element={<Display />} />

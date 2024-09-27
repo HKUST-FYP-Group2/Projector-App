@@ -8,42 +8,34 @@ import {
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface ControlBarProps {
+  handleLogout: () => void;
   isFullScreen: boolean;
   handleFullScreen: () => void;
   showSettingPanel: boolean;
   setShowSettingPanel: (value: boolean) => void;
   setIsClosingSettingsPanel: (value: boolean) => void;
-  setIsFadingOut: (value: boolean) => void;
+  isBluetoothConnected: boolean;
+  setIsBluetoothConnected: (value: boolean) => void;
 }
 
 const SettingsBar = ({
+  handleLogout,
   isFullScreen,
   handleFullScreen,
   showSettingPanel,
   setShowSettingPanel,
   setIsClosingSettingsPanel,
-  setIsFadingOut,
+  isBluetoothConnected,
+  setIsBluetoothConnected,
 }: ControlBarProps) => {
-  const navigate = useNavigate();
   const [togglePanel, setTogglePanel] = useState(false);
-
-  //logout function
-  function handleLogout() {
-    setIsFadingOut(true);
-    setTimeout(() => {
-      sessionStorage.removeItem("session");
-      navigate("/login");
-    }, 1000); // Match the duration of the fade-out animation
-  }
 
   //TODO: Bluetooth Settings
   function handleBluetoothSettings() {
     setIsBluetoothConnected(!isBluetoothConnected);
   }
-  const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
 
   return (
     <div

@@ -54,7 +54,7 @@ function Login() {
       >
         <img
           src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
-          className={`w-full h-full object-cover absolute z-10 opacity-30 fade-in-20`}
+          className={`w-full h-full object-cover absolute z-10 opacity-30 fade-in-30`}
           alt={`image`}
         />
 
@@ -87,13 +87,14 @@ function Login() {
                 className={`w-full absolute h-fit flex item-center justify-center mt-[100px]`}
               >
                 <div className={`w-[280px] text-[20px] mr-[55px]`}>
-                  <form onSubmit={handleSubmit}>
+                  <form onSubmit={handleSubmit} autoComplete={"off"}>
                     <div className="relative mt-[20px] w-full">
                       <input
                         type="text"
                         name="username"
                         placeholder="Username"
                         className="login-input-style"
+                        spellCheck={false}
                       />
                     </div>
                     <div className="relative focus-within:text-blue-2 text-blue mt-[8px]">
@@ -102,6 +103,7 @@ function Login() {
                         name="password"
                         placeholder="Password"
                         className="login-input-style pr-10"
+                        spellCheck={false}
                       />
                       <span
                         className="absolute right-2 top-4 cursor-pointer"
