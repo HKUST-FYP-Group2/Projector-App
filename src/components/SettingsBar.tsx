@@ -4,48 +4,42 @@ import {
   BluetoothDisabledOutlined as BluetoothDisabledOutlinedIcon,
   FullscreenExitOutlined as FullscreenExitOutlinedIcon,
   FullscreenOutlined as FullscreenOutlinedIcon,
-  LogoutOutlined as LogoutOutlinedIcon,
+  Logout as LogoutIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 
 interface ControlBarProps {
+  handleLogout: () => void;
   isFullScreen: boolean;
   handleFullScreen: () => void;
   showSettingPanel: boolean;
   setShowSettingPanel: (value: boolean) => void;
-  setIsFadingOut: (value: boolean) => void;
+  setIsClosingSettingsPanel: (value: boolean) => void;
+  isBluetoothConnected: boolean;
+  setIsBluetoothConnected: (value: boolean) => void;
 }
 
 const SettingsBar = ({
+  handleLogout,
   isFullScreen,
   handleFullScreen,
   showSettingPanel,
   setShowSettingPanel,
-  setIsFadingOut,
+  setIsClosingSettingsPanel,
+  isBluetoothConnected,
+  setIsBluetoothConnected,
 }: ControlBarProps) => {
-  const navigate = useNavigate();
   const [togglePanel, setTogglePanel] = useState(false);
-
-  //logout function
-  function handleLogout() {
-    setIsFadingOut(true);
-    setTimeout(() => {
-      sessionStorage.removeItem("session");
-      navigate("/login");
-    }, 1000); // Match the duration of the fade-out animation
-  }
 
   //TODO: Bluetooth Settings
   function handleBluetoothSettings() {
     setIsBluetoothConnected(!isBluetoothConnected);
   }
-  const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
 
   return (
     <div
-      className={`absolute flex bottom-2 left-0 z-20 opacity-50 hover:opacity-100 pl-2 pt-10 pr-10 `}
+      className={`absolute flex bottom-2 left-0 z-20 opacity-50 hover:opacity-100 pl-2 pt-10 pr-10 ${showSettingPanel ? `opacity-100` : ``} `}
       onMouseOver={() => {
         setTogglePanel(true);
       }}
@@ -54,11 +48,11 @@ const SettingsBar = ({
       }}
     >
       <div
-        className={`flex rounded-xl pt-1 pb-1 pr-2 pl-2 ${togglePanel ? `bg-blue bg-opacity-60 text-gold` : `bg-transparent text-white`}`}
+        className={`flex rounded-xl pt-1 pb-1 pr-2 pl-2 ${togglePanel || showSettingPanel ? `bg-blue bg-opacity-60 text-gold` : `bg-transparent text-white`}`}
       >
         <div onClick={handleLogout} className={`display-buttons-style`}>
           <CustomizedTooltip title={`Logout`}>
-            <LogoutOutlinedIcon fontSize="medium" />
+            <LogoutIcon fontSize="medium" />
           </CustomizedTooltip>
         </div>
         <div
@@ -81,8 +75,14 @@ const SettingsBar = ({
           </CustomizedTooltip>
         </div>
         <div
-          onClick={() => setShowSettingPanel(!showSettingPanel)}
-          className={`display-buttons-style`}
+          onClick={() => {
+            if (showSettingPanel) {
+              setIsClosingSettingsPanel(true);
+            } else {
+              setShowSettingPanel(true);
+            }
+          }}
+          className={`display-buttons-style ${showSettingPanel ? `text-yellow-1` : ``}`}
         >
           <CustomizedTooltip title={`Settings`}>
             <SettingsIcon fontSize="medium" />

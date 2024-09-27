@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+
 .login-input-style {
     @apply w-full bg-transparent border-2 border-blue p-1 mt-3 placeholder-blue text-blue rounded focus:outline-none focus:border-blue-2 focus:placeholder-blue-2 focus:text-blue-2;
 }
@@ -13,6 +18,7 @@
 .settings-panel-left-div {
     @apply mt-2 cursor-pointer hover:bg-blue-3 px-2 text-gray hover:text-white select-none py-1 rounded;
 }
+
 
 @keyframes fadeIn {
     from {
@@ -27,17 +33,34 @@
     animation: fadeIn 1s ease-in-out;
 }
 
-@keyframes fadeIn-20 {
+.fade-in-short {
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn-30 {
     from {
         opacity: 0;
     }
     to {
-        opacity: 0.2;
+        opacity: 0.3;
     }
 }
 
-.fade-in-20 {
-    animation: fadeIn-20 1s ease-in-out;
+.fade-in-30 {
+    animation: fadeIn-30 1s ease-in-out;
+}
+
+@keyframes fadeIn-60 {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 0.6;
+    }
+}
+
+.fade-in-60 {
+    animation: fadeIn-60 1s ease-in-out;
 }
 
 @keyframes fadeOut {
@@ -51,4 +74,12 @@
 
 .fade-out {
     animation: fadeOut 1s ease-in-out;
+}
+
+.fade-out-short {
+    animation: fadeOut 0.3s ease-in-out;
+}
+
+.settings-panel-switch-container {
+    @apply bg-blue-3 px-3 rounded flex mt-2 w-[80%] h-[40px];
 }

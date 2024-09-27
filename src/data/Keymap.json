@@ -1,0 +1,8 @@
+{
+  "q": "setIsClosingSettingsPanel(true)",
+  "l": "handleLogout()",
+  "f": "handleFullScreen()",
+  "s": "setShowSettingPanel(true)",
+  "c": "setClockSettings((prevSettings) => { return { ...prevSettings, showClock: !prevSettings.showClock }; })",
+  "b": "setIsBluetoothConnected((prevIsBluetoothConnected) => !prevIsBluetoothConnected)"
+}
