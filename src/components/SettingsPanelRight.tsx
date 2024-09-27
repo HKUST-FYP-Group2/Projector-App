@@ -29,7 +29,9 @@ const SettingsPanelRight = ({
   return (
     <ThemeProvider theme={theme}>
       <div className={`ml-4 p-2 overflow-hidden flex-col flex w-[70%]`}>
-        <div className={`text-center font-bold text-3xl `}>{selectedItem}</div>
+        <div className={`text-center font-bold text-3xl select-none`}>
+          {selectedItem}
+        </div>
         <div className={`mt-5`}>
           {selectedItem === "Video" && (
             <div>
@@ -71,7 +73,7 @@ const SettingsPanelRight = ({
                 />
               </div>
               <div className={`settings-panel-switch-container`}>
-                <span className={`mt-[7px]`}>12 Hour Format</span>
+                <span className={`mt-[7px]`}>12-Hour Format</span>
                 <Switch
                   checked={settings.clock.hour12}
                   onChange={(e) =>
@@ -82,6 +84,26 @@ const SettingsPanelRight = ({
                   }
                   color={`primary`}
                   className={`mr-0 ml-auto`}
+                />
+              </div>
+              <div className={`settings-panel-switch-container`}>
+                <span className={`mt-[7px]`}>Font Size</span>
+                <Slider
+                  value={settings.clock.fontSize}
+                  onChange={(_, value) =>
+                    setSettings({
+                      ...settings,
+                      clock: {
+                        ...settings.clock,
+                        fontSize: Number(value),
+                      },
+                    })
+                  }
+                  min={10}
+                  max={100}
+                  color={`primary`}
+                  style={{ width: "70%" }}
+                  className={`mr-3 ml-auto`}
                 />
               </div>
             </div>

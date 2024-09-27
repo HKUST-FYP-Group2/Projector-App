@@ -81,5 +81,5 @@ input::-ms-clear {
 }
 
 .settings-panel-switch-container {
-    @apply bg-blue-3 px-3 rounded flex mt-2 w-[80%] ;
+    @apply bg-blue-3 px-3 rounded flex mt-2 w-[80%] h-[40px];
 }

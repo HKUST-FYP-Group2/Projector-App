@@ -89,7 +89,7 @@ function Display() {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleLogout]);
+  }, [handleLogout, settings]);
 
   return (
     <div
@@ -128,7 +128,6 @@ function Display() {
             settings={settings}
             setSettings={setSettings}
           />
-
           <SettingsBar
             handleLogout={handleLogout}
             isFullScreen={isFullScreen}
@@ -139,22 +138,7 @@ function Display() {
             isBluetoothConnected={isBluetoothConnected}
             setIsBluetoothConnected={setIsBluetoothConnected}
           />
-          <div className={`absolute bottom-0 right-0 flex `}>
-            {settings.clock.showClock && (
-              <>
-                <div
-                  className={`absolute z-30 w-full h-full bg-blue blur opacity-60 fade-in-60`}
-                ></div>
-                <div className={`z-40 px-5 py-3 w-full h-full select-none`}>
-                  <Clock
-                    fontStyle={`text-yellow font-bold text-[30px] fade-in`}
-                    position={``}
-                    clockSettings={settings.clock}
-                  />
-                </div>
-              </>
-            )}
-          </div>
+          <Clock settings={settings} />
         </>
       )}
     </div>

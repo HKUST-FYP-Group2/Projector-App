@@ -3,7 +3,7 @@
   "clock": {
     "showClock": true,
     "showSecond": false,
-    "hour12": true
+    "hour12": true,
+    "fontSize" : 30
   }
-
 }

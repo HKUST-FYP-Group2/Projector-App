@@ -4,6 +4,7 @@ interface Settings {
     showClock: boolean;
     showSecond: boolean;
     hour12: boolean;
+    fontSize: number;
   };
 }
 
