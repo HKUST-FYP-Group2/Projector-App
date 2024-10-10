@@ -39,7 +39,7 @@ const SettingsBar = ({
 
   return (
     <div
-      className={`absolute flex bottom-2 left-0 z-20 opacity-50 hover:opacity-100 pl-2 pt-10 pr-10 ${showSettingPanel ? `opacity-100` : ``} `}
+      className={`absolute flex bottom-2 left-0 z-20 opacity-70 hover:opacity-100 pl-2 pt-10 pr-10 ${showSettingPanel ? `opacity-100` : ``} `}
       onMouseOver={() => {
         setTogglePanel(true);
       }}

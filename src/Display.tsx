@@ -111,7 +111,7 @@ function Display() {
         {!isPlaying && (
           <img
             src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
-            className={`w-full h-full object-cover fade-in ${isFadingOut ? "fade-out" : ""}`}
+            className={`w-full bg-blue h-full object-cover fade-in ${isFadingOut ? "fade-out" : ""}`}
             alt={`image`}
           />
         )}

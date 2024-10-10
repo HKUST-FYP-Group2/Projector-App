@@ -26,7 +26,7 @@ const Clock = ({ settings }: ClockProps) => {
   React.useEffect(() => {
     const interval = setInterval(() => {
       setTime(formatTime(new Date()));
-    }, 1000);
+    }, 100);
     return () => clearInterval(interval);
   }, [formatTime]);
 

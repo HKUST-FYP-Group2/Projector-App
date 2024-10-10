@@ -90,7 +90,7 @@ const SettingsPanel = ({
         <div
           className={`h-fit w-full bg-blue text-white p-[20px] flex ${isClosingSettingsPanel ? "fade-out-short" : "fade-in-short"}`}
         >
-          <div className={`h-full w-[30%] flex flex-col`}>
+          <div className={`h-full w-[30%] flex flex-col z-10`}>
             <div className={`w-full h-fit flex`}>
               <AccountCircleIcon
                 style={{ fontSize: "70px" }}
