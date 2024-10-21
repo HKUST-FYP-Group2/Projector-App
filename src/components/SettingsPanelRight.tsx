@@ -122,7 +122,7 @@ const SettingsPanelRight = ({
                     onChange={(_, value) =>
                       setSettings({ ...settings, brightness: value as number })
                     }
-                    min={0}
+                    min={20}
                     max={100}
                     style={{ width: "100%" }}
                     color="primary"

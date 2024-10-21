@@ -4,6 +4,7 @@ import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import { QRCodeSVG } from "qrcode.react";
+import axios from "axios";
 
 function Login() {
   const navigate = useNavigate();
@@ -26,22 +27,55 @@ function Login() {
     const username = form.elements.namedItem("username") as HTMLInputElement;
     const password = form.elements.namedItem("password") as HTMLInputElement;
 
-    //TODO: should connect to flask auth, now just for demo
-    if (username.value === "admin" && password.value === "admin") {
-      const session = "s"; // Replace with session token return from flask
-      sessionStorage.setItem("session", session);
-      setLoading(true);
-      setTimeout(() => {
-        setLoading(false);
-        setLoginSuccess(true);
-        setIsFadingOut(true);
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      }, 1000);
-    } else {
-      setLoginFailed(true);
-    }
+    // if (username.value === "admin" && password.value === "admin") {
+    //   const session = "s"; // Replace with session token return from flask
+    //   sessionStorage.setItem("session", session);
+    //   setLoading(true);
+    //   setTimeout(() => {
+    //     setLoading(false);
+    //     setLoginSuccess(true);
+    //     setIsFadingOut(true);
+    //     setTimeout(() => {
+    //       navigate("/");
+    //     }, 1000);
+    //   }, 1000);
+    // } else {
+    //   setLoginFailed(true);
+    // }
+
+    axios
+      .post("/api/login", {
+        username: username.value,
+        password: password.value,
+      })
+      .then((res) => {
+        if (res.status === 200) {
+          const session = "s"; // Replace with session token return from flask
+          sessionStorage.setItem("session", session);
+          setLoading(true);
+          setTimeout(() => {
+            setLoading(false);
+            setLoginSuccess(true);
+            setIsFadingOut(true);
+            setTimeout(() => {
+              navigate("/");
+            }, 1000);
+          }, 1000);
+        } else {
+          setLoginFailed(true);
+        }
+      })
+      .catch((err) => {
+        setLoginFailed(true);
+      });
+
+    // axios("/api/status")
+    //   .then((res) => {
+    //     console.log(res.data);
+    //   })
+    //   .catch((err) => {
+    //     console.log(err);
+    //   });
   };
 
   return (

@@ -2,7 +2,6 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import dotenv from "dotenv";
 
-// Load environment variables from .env file
 dotenv.config();
 
 export default defineConfig({
@@ -11,5 +10,12 @@ export default defineConfig({
     host: process.env.VITE_HOST,
     port: Number(process.env.VITE_PORT),
     strictPort: true,
+    proxy: {
+      "/api": {
+        target: process.env.API_ENDPOINT,
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/api/, ""),
+      },
+    },
   },
 });
