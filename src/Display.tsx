@@ -4,12 +4,14 @@ import ReactPlayer from "react-player";
 import Clock from "./components/Clock.tsx";
 import SettingsBar from "./components/SettingsBar.tsx";
 import SettingsPanel from "./components/SettingsPanel.tsx";
-import { useNavigate } from "react-router-dom";
 import settings_default from "./data/settings.json";
 
-function Display() {
-  useAuth();
-  const navigate = useNavigate();
+interface DisplayProps {
+  userStatus?: any;
+}
+
+function Display({ userStatus }: DisplayProps) {
+  const { logout } = useAuth();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
 
@@ -52,9 +54,8 @@ function Display() {
   function handleLogout() {
     setIsFadingOut(true);
     setTimeout(() => {
-      sessionStorage.removeItem("session");
-      navigate("/login");
-    }, 1000); // Match the duration of the fade-out animation
+      logout();
+    }, 800); // Match the duration of the fade-out animation
   }
 
   //keyboard listener
@@ -127,6 +128,7 @@ function Display() {
             handleVideoSettings={handleVideoSettings}
             settings={settings}
             setSettings={setSettings}
+            userStatus={userStatus}
           />
           <SettingsBar
             handleLogout={handleLogout}

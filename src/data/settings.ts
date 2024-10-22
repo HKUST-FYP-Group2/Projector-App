@@ -5,6 +5,8 @@ interface Settings {
     showSecond: boolean;
     hour12: boolean;
     fontSize: number;
+    fontColor: string;
+    backgroundColor: string;
   };
 }
 

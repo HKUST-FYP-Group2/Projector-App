@@ -3,6 +3,7 @@ import Switch from "@mui/material/Switch";
 import Brightness2Icon from "@mui/icons-material/Brightness2";
 import BrightnessHighIcon from "@mui/icons-material/BrightnessHigh";
 import Settings from "../data/settings.ts";
+import defaultSettings from "../data/settings.json";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 interface SettingsPanelRightProps {
@@ -32,15 +33,17 @@ const SettingsPanelRight = ({
         <div className={`text-center font-bold text-3xl select-none`}>
           {selectedItem}
         </div>
-        <div className={`mt-5`}>
+        <div
+          className={`mt-3 h-[300px] overflow-y-auto py-2 scrollbar scrollbar-thumb-blue scrollbar-track-blue-3`}
+        >
           {selectedItem === "Video" && (
             <div>
               <input type="checkbox" onChange={handleVideoSettings} />
-              Image
+              Video
             </div>
           )}
           {selectedItem === "Clock" && (
-            <div className={`w-full h-full flex flex-col items-center`}>
+            <div className={`w-full h-fit flex flex-col items-center`}>
               <div className={`settings-panel-switch-container`}>
                 <span className={`mt-[7px]`}>Show Clock</span>
                 <Switch
@@ -106,11 +109,58 @@ const SettingsPanelRight = ({
                   className={`mr-3 ml-auto`}
                 />
               </div>
+              <div className={`settings-panel-switch-container`}>
+                <span className={`mt-[7px]`}>Font Color</span>
+                <input
+                  type="color"
+                  value={settings.clock.fontColor}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      clock: {
+                        ...settings.clock,
+                        fontColor: e.target.value,
+                      },
+                    })
+                  }
+                  className={`mr-0 ml-auto mt-1.5`}
+                />
+              </div>
+              <div className={`settings-panel-switch-container`}>
+                <span className={`mt-[7px]`}>Background Color</span>
+                <input
+                  type="color"
+                  value={settings.clock.backgroundColor}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      clock: {
+                        ...settings.clock,
+                        backgroundColor: e.target.value,
+                      },
+                    })
+                  }
+                  className={`mr-0 ml-auto mt-1.5`}
+                />
+              </div>
+              <div
+                className={`settings-panel-switch-container cursor-pointer hover:bg-yellow`}
+                onClick={() =>
+                  setSettings({
+                    ...settings,
+                    clock: {
+                      ...defaultSettings.clock,
+                    },
+                  })
+                }
+              >
+                <span className={`mt-[7px]`}>Reset</span>
+              </div>
             </div>
           )}
           {selectedItem === "Brightness" && (
             <div
-              className={`w-full h-full flex items-center justify-center mt-2 `}
+              className={`w-full h-fit flex items-center justify-center mt-2 `}
             >
               <div
                 className={`flex w-fit items-center justify-center bg-blue-3 rounded px-2 text-white`}

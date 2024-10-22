@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
@@ -14,34 +14,27 @@ function Login() {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
 
-  useEffect(() => {
-    const session = sessionStorage.getItem("session");
-    if (session) {
-      navigate("/");
-    }
-  }, [navigate]);
-
   const handleSubmit = (event: React.FormEvent) => {
+    setLoading(true);
     event.preventDefault();
     const form = event.target as HTMLFormElement;
     const username = form.elements.namedItem("username") as HTMLInputElement;
     const password = form.elements.namedItem("password") as HTMLInputElement;
 
-    // if (username.value === "admin" && password.value === "admin") {
-    //   const session = "s"; // Replace with session token return from flask
-    //   sessionStorage.setItem("session", session);
-    //   setLoading(true);
-    //   setTimeout(() => {
-    //     setLoading(false);
-    //     setLoginSuccess(true);
-    //     setIsFadingOut(true);
+    //   if (username.value === "admin" && password.value === "admin") {
+    //     setLoading(true);
     //     setTimeout(() => {
-    //       navigate("/");
+    //       setLoading(false);
+    //       setLoginSuccess(true);
+    //       setIsFadingOut(true);
+    //       setTimeout(() => {
+    //         navigate("/");
+    //       }, 1000);
     //     }, 1000);
-    //   }, 1000);
-    // } else {
-    //   setLoginFailed(true);
-    // }
+    //   } else {
+    //     setLoginFailed(true);
+    //   }
+    // };
 
     axios
       .post("/api/login", {
@@ -50,32 +43,24 @@ function Login() {
       })
       .then((res) => {
         if (res.status === 200) {
-          const session = "s"; // Replace with session token return from flask
-          sessionStorage.setItem("session", session);
-          setLoading(true);
+          setLoading(false);
+          setLoginSuccess(true);
+          setIsFadingOut(true);
           setTimeout(() => {
-            setLoading(false);
-            setLoginSuccess(true);
-            setIsFadingOut(true);
-            setTimeout(() => {
-              navigate("/");
-            }, 1000);
+            navigate("/");
           }, 1000);
-        } else {
+        } else if (res.status === 401) {
           setLoginFailed(true);
+          setLoading(false);
+        } else {
+          setLoading(false);
+          alert(res.data);
         }
       })
-      .catch((err) => {
+      .catch(() => {
         setLoginFailed(true);
+        setLoading(false);
       });
-
-    // axios("/api/status")
-    //   .then((res) => {
-    //     console.log(res.data);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
   };
 
   return (

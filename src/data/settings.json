@@ -4,6 +4,8 @@
     "showClock": true,
     "showSecond": false,
     "hour12": true,
-    "fontSize" : 30
+    "fontSize" : 30,
+    "fontColor": "#cc9900",
+    "backgroundColor" : "#003366"
   }
 }

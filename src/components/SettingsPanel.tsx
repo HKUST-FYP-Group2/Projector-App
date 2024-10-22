@@ -20,6 +20,7 @@ interface SettingsPanelProps {
   handleVideoSettings: () => void;
   settings: Settings;
   setSettings: (value: Settings) => void;
+  userStatus?: any;
 }
 
 const SettingsPanel = ({
@@ -30,6 +31,7 @@ const SettingsPanel = ({
   handleVideoSettings,
   settings,
   setSettings,
+  userStatus,
 }: SettingsPanelProps) => {
   const [selectedItem, setSelectedItem] = useState<string>("");
 
@@ -97,7 +99,7 @@ const SettingsPanel = ({
                 className={`text-white`}
               />
               <div className={`w-full ml-1 text-white flex items-center`}>
-                User Name
+                {userStatus?.username || "User"}
               </div>
             </div>
             {items.map((item) => (
