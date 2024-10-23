@@ -34,7 +34,7 @@ const SettingsPanelRight = ({
           {selectedItem}
         </div>
         <div
-          className={`mt-3 h-[300px] overflow-y-auto py-2 scrollbar scrollbar-thumb-blue scrollbar-track-blue-3`}
+          className={`mt-3 h-[300px] overflow-y-auto py-2 scrollbar scrollbar-thumb-blue-3 scrollbar-track-blue`}
         >
           {selectedItem === "Video" && (
             <div>

@@ -7,9 +7,9 @@ import {
   Settings as SettingsIcon,
   LogoutOutlined as LogoutOutlinedIcon,
 } from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import LeftPanelItem from "./SettingsPanelLeft.tsx";
-import RightPanelContent from "./SettingsPanelRight.tsx";
+import { useEffect, useMemo, useState } from "react";
+import LeftPanelItem from ".//SettingsPanelLeft.tsx";
+import RightPanelContent from ".//SettingsPanelRight.tsx";
 import Settings from "../data/settings.ts";
 
 interface SettingsPanelProps {
@@ -20,7 +20,7 @@ interface SettingsPanelProps {
   handleVideoSettings: () => void;
   settings: Settings;
   setSettings: (value: Settings) => void;
-  userStatus?: any;
+  userStatus?: { username: string };
 }
 
 const SettingsPanel = ({
@@ -35,15 +35,17 @@ const SettingsPanel = ({
 }: SettingsPanelProps) => {
   const [selectedItem, setSelectedItem] = useState<string>("");
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const items = [
-    { icon: VideoSettingsOutlinedIcon, label: "Video" },
-    { icon: SettingsBrightnessIcon, label: "Brightness" },
-    { icon: VolumeUpIcon, label: "Volume" },
-    { icon: ScheduleIcon, label: "Clock" },
-    { icon: SettingsIcon, label: "Settings Bar" },
-    { icon: LogoutOutlinedIcon, label: "Logout" },
-  ];
+  const items = useMemo(
+    () => [
+      { icon: VideoSettingsOutlinedIcon, label: "Video" },
+      { icon: SettingsBrightnessIcon, label: "Brightness" },
+      { icon: VolumeUpIcon, label: "Volume" },
+      { icon: ScheduleIcon, label: "Clock" },
+      { icon: SettingsIcon, label: "Settings Bar" },
+      { icon: LogoutOutlinedIcon, label: "Logout" },
+    ],
+    [],
+  );
 
   useEffect(() => {
     if (isClosingSettingsPanel) {
@@ -52,7 +54,12 @@ const SettingsPanel = ({
         setIsClosingSettingsPanel(false);
       }, 290);
     }
-  }, [isClosingSettingsPanel, showSettingPanel, setShowSettingPanel]);
+  }, [
+    isClosingSettingsPanel,
+    showSettingPanel,
+    setShowSettingPanel,
+    setIsClosingSettingsPanel,
+  ]);
 
   //keyboard listener
   useEffect(() => {

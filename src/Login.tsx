@@ -1,10 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import { QRCodeSVG } from "qrcode.react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 function Login() {
   const navigate = useNavigate();
@@ -15,7 +15,7 @@ function Login() {
   const [loginSuccess, setLoginSuccess] = useState(false);
 
   const handleSubmit = async (event: React.FormEvent) => {
-    setLoading(true);
+    // setLoading(true);
     event.preventDefault();
     const form = event.target as HTMLFormElement;
     const username = form.elements.namedItem("username") as HTMLInputElement;
@@ -145,17 +145,15 @@ function Login() {
                         )}
                       </span>
                     </div>
-                    <div
-                      className={`text-red-2 font-bold text-xs ${loginFailed ? `` : `invisible`}`}
-                    >
+                    <div className={`text-red-2 font-bold text-xs block h-4`}>
                       {loginFailed === 401 && "Invalid Login Credential"}
                       {loginFailed === 500 && "Internal Server Error"}
                     </div>
                     <button
                       type="submit"
-                      className="bg-blue w-full mt-[8px] text-white p-1 rounded-3xl hover:bg-blue-2 uppercase "
+                      className="bg-blue w-full mt-[8px] text-white p-1 rounded-3xl hover:bg-blue-2 uppercase h-[40px] flex items-center justify-center"
                     >
-                      login
+                      {loading ? <CircularProgress size="1.5rem" /> : "Login"}
                     </button>
                   </form>
                 </div>

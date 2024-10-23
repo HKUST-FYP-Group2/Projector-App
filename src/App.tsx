@@ -32,7 +32,12 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<Display userStatus={userStatus} />} />
+      <Route
+        path="/"
+        element={
+          <Display userStatus={userStatus} setUserStatus={setUserStatus} />
+        }
+      />
       <Route path="/login" element={<Login />} />
     </Routes>
   );

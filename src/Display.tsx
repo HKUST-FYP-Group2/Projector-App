@@ -8,19 +8,22 @@ import settings_default from "./data/settings.json";
 
 interface DisplayProps {
   userStatus?: any;
+  setUserStatus: (value: any) => void;
 }
 
-function Display({ userStatus }: DisplayProps) {
-  const { logout } = useAuth();
+function Display({ userStatus, setUserStatus }: DisplayProps) {
+  const { loginStatus, logout } = useAuth();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
-
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
   const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
-
   const [settings, setSettings] = useState(settings_default);
+
+  useEffect(() => {
+    loginStatus().then((r) => setUserStatus(r));
+  }, []);
 
   // Fullscreen event listener
   useEffect(() => {
