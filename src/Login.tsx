@@ -10,11 +10,11 @@ function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loginFailed, setLoginFailed] = useState(false);
+  const [loginFailed, setLoginFailed] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
     event.preventDefault();
     const form = event.target as HTMLFormElement;
@@ -36,31 +36,38 @@ function Login() {
     //   }
     // };
 
-    axios
-      .post("/api/login", {
-        username: username.value,
-        password: password.value,
-      })
-      .then((res) => {
-        if (res.status === 200) {
-          setLoading(false);
-          setLoginSuccess(true);
-          setIsFadingOut(true);
-          setTimeout(() => {
-            navigate("/");
-          }, 1000);
-        } else if (res.status === 401) {
-          setLoginFailed(true);
-          setLoading(false);
-        } else {
-          setLoading(false);
-          alert(res.data);
-        }
-      })
-      .catch(() => {
-        setLoginFailed(true);
+    try {
+      const res = await axios.post(
+        "/api/login",
+        {
+          username: username.value,
+          password: password.value,
+        },
+        {
+          timeout: 5000, // 5 seconds timeout
+        },
+      );
+
+      if (res.status === 200) {
         setLoading(false);
-      });
+        setLoginSuccess(true);
+        setIsFadingOut(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      } else {
+        setLoginFailed(res.status);
+        setLoading(false);
+        alert(res.data);
+      }
+    } catch (err: unknown) {
+      if (axios.isAxiosError(err) && err.response) {
+        setLoginFailed(err.response.status);
+      } else {
+        setLoginFailed(500);
+      }
+      setLoading(false);
+    }
   };
 
   return (
@@ -141,7 +148,8 @@ function Login() {
                     <div
                       className={`text-red-2 font-bold text-xs ${loginFailed ? `` : `invisible`}`}
                     >
-                      Invalid Login Credential
+                      {loginFailed === 401 && "Invalid Login Credential"}
+                      {loginFailed === 500 && "Internal Server Error"}
                     </div>
                     <button
                       type="submit"

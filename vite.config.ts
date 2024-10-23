@@ -15,6 +15,7 @@ export default defineConfig({
         target: process.env.API_ENDPOINT,
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""),
+        secure: false,
       },
     },
   },
