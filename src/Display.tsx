@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import useAuth from "./components/useAuth.tsx";
 import ReactPlayer from "react-player";
 import Clock from "./components/Clock.tsx";
@@ -20,6 +20,7 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
   const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
   const [settings, setSettings] = useState(settings_default);
+  const videoRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     loginStatus().then((r) => setUserStatus(r));
@@ -116,6 +117,12 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
           <img
             src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
             className={`w-full bg-blue h-full object-cover fade-in ${isFadingOut ? "fade-out" : ""}`}
+            ref={videoRef}
+            onAnimationEnd={() => {
+              if (isFadingOut && videoRef.current) {
+                videoRef.current.style.opacity = "0";
+              }
+            }}
             alt={`image`}
           />
         )}

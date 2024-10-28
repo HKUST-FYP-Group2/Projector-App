@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -13,6 +13,7 @@ function Login() {
   const [loginFailed, setLoginFailed] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const loginMainRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
     // setLoading(true);
@@ -57,16 +58,15 @@ function Login() {
         }, 1000);
       } else {
         setLoginFailed(res.status);
-        setLoading(false);
         alert(res.data);
       }
     } catch (err: unknown) {
+      setLoading(false);
       if (axios.isAxiosError(err) && err.response) {
         setLoginFailed(err.response.status);
       } else {
         setLoginFailed(500);
       }
-      setLoading(false);
     }
   };
 
@@ -77,6 +77,12 @@ function Login() {
       )}
       <div
         className={`flex flex-col z-10 justify-center items-center h-screen w-screen bg-blue ${isFadingOut ? "fade-out" : ""}`}
+        ref={loginMainRef}
+        onAnimationEnd={() => {
+          if (isFadingOut && loginMainRef.current) {
+            loginMainRef.current.style.opacity = "0";
+          }
+        }}
       >
         <img
           src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
@@ -85,26 +91,26 @@ function Login() {
         />
 
         <div className="flex flex-col bg-yellow rounded-[20px] z-20 w-[700px] h-[350px] absolute">
-          {loading && (
-            <div className={`w-full h-full items-center justify-center flex`}>
-              <div
-                className={`w-[100px] h-[100px] flex justify-center items-center`}
-              >
-                <CircularProgress
-                  size={`100%`}
-                  sx={{ color: "rgba(0, 51, 102, 1)" }}
-                />
-              </div>
-            </div>
-          )}
-          {!loading && loginSuccess && (
+          {/*{loading && (*/}
+          {/*  <div className={`w-full h-full items-center justify-center flex`}>*/}
+          {/*    <div*/}
+          {/*      className={`w-[100px] h-[100px] flex justify-center items-center`}*/}
+          {/*    >*/}
+          {/*      <CircularProgress*/}
+          {/*        size={`100%`}*/}
+          {/*        sx={{ color: "rgba(0, 51, 102, 1)" }}*/}
+          {/*      />*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*)}*/}
+          {loading && loginSuccess && (
             <div className={`w-full h-full items-center justify-center flex`}>
               <div className="absolute text-blue font-bold text-2xl text-center">
                 Login Success <br /> Redirecting...
               </div>
             </div>
           )}
-          {!loading && !loginSuccess && (
+          {!loginSuccess && (
             <>
               <div className="w-full font-bold text-[28px] mt-[50px] text-center text-blue select-none absolute mb-auto">
                 Virtual Window for Workplace Well-being
@@ -151,7 +157,8 @@ function Login() {
                     </div>
                     <button
                       type="submit"
-                      className="bg-blue w-full mt-[8px] text-white p-1 rounded-3xl hover:bg-blue-2 uppercase h-[40px] flex items-center justify-center"
+                      className={`bg-blue w-full mt-[8px] text-white p-1 rounded-3xl uppercase h-[40px] flex items-center justify-center ${!loading && "hover:bg-blue-2"}`}
+                      disabled={loading}
                     >
                       {loading ? <CircularProgress size="1.5rem" /> : "Login"}
                     </button>
