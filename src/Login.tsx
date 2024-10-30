@@ -16,7 +16,7 @@ function Login() {
   const loginMainRef = useRef<HTMLDivElement>(null);
 
   const handleSubmit = async (event: React.FormEvent) => {
-    // setLoading(true);
+    setLoading(true);
     event.preventDefault();
     const form = event.target as HTMLFormElement;
     const username = form.elements.namedItem("username") as HTMLInputElement;
