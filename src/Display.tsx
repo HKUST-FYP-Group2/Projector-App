@@ -20,7 +20,7 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
   const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
   const [settings, setSettings] = useState(settings_default);
-  const videoRef = useRef<HTMLImageElement>(null);
+  const videoRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     loginStatus().then((r) => setUserStatus(r));
@@ -101,11 +101,25 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       className={`bg-blue w-screen h-screen text-white`}
       style={{ filter: `brightness(${settings.brightness}%)` }}
     >
+      <div
+        ref={videoRef}
+        className={`w-full h-full absolute z-10 bg-blue ${isFadingOut ? "fade-in" : "fade-out"}`}
+        onAnimationEnd={() => {
+          if (videoRef.current) {
+            if (isFadingOut) {
+              videoRef.current.style.opacity = "100";
+            } else {
+              videoRef.current.style.opacity = "0";
+            }
+          }
+        }}
+      ></div>
+
       <div className={`w-full h-full absolute z-0 flex`}>
         {isPlaying && (
           <ReactPlayer
             url="https://youtu.be/3c-rhqg4nuY?si=hLoVJSOIA22a6eEG"
-            className={`w-full h-full fade-in ${isFadingOut ? "fade-out" : ""}`}
+            className={`w-full h-full`}
             playing
             loop
             muted
@@ -116,13 +130,7 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
         {!isPlaying && (
           <img
             src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
-            className={`w-full bg-blue h-full object-cover fade-in ${isFadingOut ? "fade-out" : ""}`}
-            ref={videoRef}
-            onAnimationEnd={() => {
-              if (isFadingOut && videoRef.current) {
-                videoRef.current.style.opacity = "0";
-              }
-            }}
+            className={`w-full bg-blue h-full object-cover`}
             alt={`image`}
           />
         )}

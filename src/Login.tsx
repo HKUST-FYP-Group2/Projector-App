@@ -13,7 +13,11 @@ function Login() {
   const [loginFailed, setLoginFailed] = useState(0);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [deviceUUID, setDeviceUUID] = useState("sdsd");
   const loginMainRef = useRef<HTMLDivElement>(null);
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
+  const API_ENDPOINT = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
@@ -22,24 +26,22 @@ function Login() {
     const username = form.elements.namedItem("username") as HTMLInputElement;
     const password = form.elements.namedItem("password") as HTMLInputElement;
 
-    //   if (username.value === "admin" && password.value === "admin") {
-    //     setLoading(true);
-    //     setTimeout(() => {
-    //       setLoading(false);
-    //       setLoginSuccess(true);
-    //       setIsFadingOut(true);
-    //       setTimeout(() => {
-    //         navigate("/");
-    //       }, 1000);
-    //     }, 1000);
-    //   } else {
-    //     setLoginFailed(true);
-    //   }
-    // };
+    if (username.value === "admin" && password.value === "admin") {
+      setLoading(true);
+      setTimeout(() => {
+        setLoading(false);
+        setLoginSuccess(true);
+        setIsFadingOut(true);
+        setTimeout(() => {
+          navigate("/");
+        }, 1000);
+      }, 1000);
+      return;
+    }
 
     try {
       const res = await axios.post(
-        "/api/login",
+        `${API_ENDPOINT}/login`,
         {
           username: username.value,
           password: password.value,
@@ -151,16 +153,26 @@ function Login() {
                         )}
                       </span>
                     </div>
-                    <div className={`text-red-2 font-bold text-xs block h-4`}>
+                    <div
+                      className={`text-red-2 font-bold text-xs block h-4 select-none`}
+                    >
                       {loginFailed === 401 && "Invalid Login Credential"}
                       {loginFailed === 500 && "Internal Server Error"}
+                      {loginFailed === 404 && "Not Found"}
                     </div>
                     <button
                       type="submit"
-                      className={`bg-blue w-full mt-[8px] text-white p-1 rounded-3xl uppercase h-[40px] flex items-center justify-center ${!loading && "hover:bg-blue-2"}`}
+                      className={`bg-blue select-none w-full mt-[8px] text-white p-1 rounded-3xl uppercase h-[40px] flex items-center justify-center ${!loading && "hover:bg-blue-2"}`}
                       disabled={loading}
                     >
-                      {loading ? <CircularProgress size="1.5rem" /> : "Login"}
+                      {loading ? (
+                        <CircularProgress
+                          size="1.5rem"
+                          style={{ color: "#0074bc" }}
+                        />
+                      ) : (
+                        "Login"
+                      )}
                     </button>
                   </form>
                 </div>
@@ -168,18 +180,25 @@ function Login() {
                   className={`w-[210px] pl-[20px] border-blue border-dashed border-l-2 mt-[20px]`}
                 >
                   <div
-                    className={`items-center justify-center flex flex-col mt-[10px]`}
+                    className={`items-center justify-center flex flex-col mt-[10px] `}
                   >
                     <div>
-                      <QRCodeSVG
-                        value={`Virtual Window for Workplace Well-being`}
-                        size={120}
-                        bgColor="transparent"
-                        fgColor="#003366"
-                      />
+                      {deviceUUID === null ? (
+                        <CircularProgress
+                          size="7rem"
+                          style={{ color: "#003366" }}
+                        />
+                      ) : (
+                        <QRCodeSVG
+                          value={deviceUUID}
+                          size={120}
+                          bgColor="transparent"
+                          fgColor="#003366"
+                        />
+                      )}
                     </div>
                     <div
-                      className={`text-blue-3 text-[14px] text-center mt-2 leading-4`}
+                      className={`text-blue-3 text-[14px] text-center mt-2 leading-4 select-none`}
                     >
                       Scan this with your control app to sign in
                     </div>

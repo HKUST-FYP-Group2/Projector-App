@@ -10,13 +10,13 @@ export default defineConfig({
     host: process.env.VITE_HOST,
     port: Number(process.env.VITE_PORT),
     strictPort: true,
-    proxy: {
-      "/api": {
-        target: process.env.VITE_API_URL,
-        changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""),
-        secure: false,
-      },
-    },
+    // proxy: {
+    //   "/api": {
+    //     target: process.env.VITE_API_URL,
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, ""),
+    //     secure: false,
+    //   },
+    // },
   },
 });
