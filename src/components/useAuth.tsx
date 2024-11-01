@@ -1,41 +1,40 @@
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-// import { useCookies } from "react-cookie";
+import { useCookies } from "react-cookie";
 
 const useAuth = () => {
   const navigate = useNavigate();
-  // const [cookies, , removeCookie] = useCookies(["session"]);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  const API_ENDPOINT = import.meta.env.VITE_API_URL;
+  const [cookies, , removeCookie] = useCookies(["token"]);
 
   async function check_IsLoggedIn() {
-    // if (!cookies.session) {
-    //   navigate("/login");
-    // }
-    // const status = await loginStatus();
-    // if (status.logged_in) {
-    //   navigate("/");
-    //   return status;
-    // } else if (status === false || status.logged_in === false) {
-    //   navigate("/login");
-    //   return null;
-    // }
+    if (!cookies.token) {
+      navigate("/login");
+    }
+    const status = await loginStatus();
+    if (status.logged_in) {
+      navigate("/");
+      return status;
+    } else if (status === false || status.logged_in === false) {
+      navigate("/login");
+      return null;
+    }
     return null;
   }
 
   async function loginStatus() {
     try {
-      const res = await axios(`${API_ENDPOINT}/status`, { timeout: 3000 });
+      const res = await axios.get(`/api/status`, { timeout: 3000 });
+      console.log(res);
       return res.data;
     } catch (err) {
+      console.log(err);
       return false;
     }
   }
 
   function logout() {
-    axios.post(`${API_ENDPOINT}/logout`).then(() => {
-      // removeCookie("session");
+    axios.post(`/api/logout`).then(() => {
+      removeCookie("token");
       navigate("/login");
     });
     //for admin admin test login
@@ -43,7 +42,7 @@ const useAuth = () => {
   }
 
   async function getDeviceUUID() {
-    const res = await axios.get(`${API_ENDPOINT}/device`, {
+    const res = await axios.get(`/api/uuid`, {
       timeout: 3000,
       headers: {
         "device-type": "projector-app",

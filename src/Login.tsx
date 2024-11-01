@@ -5,6 +5,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { QRCodeSVG } from "qrcode.react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 
 function Login() {
   const navigate = useNavigate();
@@ -14,10 +15,8 @@ function Login() {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [deviceUUID, setDeviceUUID] = useState("sdsd");
+  const [, setCookie] = useCookies(["token"]);
   const loginMainRef = useRef<HTMLDivElement>(null);
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-expect-error
-  const API_ENDPOINT = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
@@ -41,7 +40,7 @@ function Login() {
 
     try {
       const res = await axios.post(
-        `${API_ENDPOINT}/login`,
+        `/api/login`,
         {
           username: username.value,
           password: password.value,
@@ -52,6 +51,7 @@ function Login() {
       );
 
       if (res.status === 200) {
+        setCookie("token", res.data.token, { path: "/" });
         setLoading(false);
         setLoginSuccess(true);
         setIsFadingOut(true);

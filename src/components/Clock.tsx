@@ -35,7 +35,7 @@ const Clock = ({ settings }: ClockProps) => {
   return (
     <div className={`absolute bottom-0 right-0 flex `}>
       <div
-        className={`absolute z-30 w-full h-full blur opacity-60 fade-in-60`}
+        className={`absolute z-30 w-full h-full blur opacity-60 fade-in-60 rounded-[30%]`}
         style={{ backgroundColor: `${settings.clock.backgroundColor}` }}
       ></div>
       <div className={`z-40 px-5 py-3 w-full h-full select-none`}>
