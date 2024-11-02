@@ -1,9 +1,17 @@
 {
   "brightness": 100,
   "clock": {
-    "showClock": true,
-    "showSecond": false,
-    "hour12": true,
-    "fontSize" : 30
+    "show_clock": true,
+    "show_second": false,
+    "hour_12": true,
+    "font_size": 30,
+    "font_color": "#cc9900",
+    "background_color": "#003366"
+  },
+  "settings_bar": {
+    "show_settings_bar": true,
+    "default_color": "#ffffff",
+    "hover_background_color": "#003366",
+    "hover_icon_color": "#996600"
   }
 }

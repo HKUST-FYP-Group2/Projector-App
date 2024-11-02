@@ -1,35 +1,43 @@
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useRef, useState } from "react";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import { QRCodeSVG } from "qrcode.react";
+import { useNavigate } from "react-router-dom";
+import useAuth from "./components/useAuth.tsx";
 
 function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loginFailed, setLoginFailed] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
+  const [deviceUUID, setDeviceUUID] = useState(null);
+  const loginMainRef = useRef<HTMLDivElement>(null);
+  const { handleLogin, getDeviceUUID } = useAuth();
 
   useEffect(() => {
-    const session = sessionStorage.getItem("session");
-    if (session) {
-      navigate("/");
-    }
-  }, [navigate]);
+    const fetchDeviceUUID = async () => {
+      const uuid = await getDeviceUUID();
+      if (uuid === null) {
+        setTimeout(fetchDeviceUUID, 3000);
+      } else {
+        setDeviceUUID(uuid);
+      }
+    };
+    fetchDeviceUUID();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const handleSubmit = (event: React.FormEvent) => {
+  const handleSubmit = async (event: React.FormEvent) => {
+    setLoading(true);
     event.preventDefault();
     const form = event.target as HTMLFormElement;
     const username = form.elements.namedItem("username") as HTMLInputElement;
     const password = form.elements.namedItem("password") as HTMLInputElement;
 
-    //TODO: should connect to flask auth, now just for demo
     if (username.value === "admin" && password.value === "admin") {
-      const session = "s"; // Replace with session token return from flask
-      sessionStorage.setItem("session", session);
       setLoading(true);
       setTimeout(() => {
         setLoading(false);
@@ -39,9 +47,24 @@ function Login() {
           navigate("/");
         }, 1000);
       }, 1000);
-    } else {
-      setLoginFailed(true);
+      return;
     }
+
+    await handleLogin(username.value, password.value).then(
+      (r: { login_success: any; error_message: string }) => {
+        if (r.login_success) {
+          setLoading(false);
+          setLoginSuccess(true);
+          setIsFadingOut(true);
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+        } else {
+          setLoading(false);
+          setErrorMessage(r.error_message);
+        }
+      },
+    );
   };
 
   return (
@@ -51,6 +74,12 @@ function Login() {
       )}
       <div
         className={`flex flex-col z-10 justify-center items-center h-screen w-screen bg-blue ${isFadingOut ? "fade-out" : ""}`}
+        ref={loginMainRef}
+        onAnimationEnd={() => {
+          if (isFadingOut && loginMainRef.current) {
+            loginMainRef.current.style.opacity = "0";
+          }
+        }}
       >
         <img
           src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
@@ -59,26 +88,26 @@ function Login() {
         />
 
         <div className="flex flex-col bg-yellow rounded-[20px] z-20 w-[700px] h-[350px] absolute">
-          {loading && (
-            <div className={`w-full h-full items-center justify-center flex`}>
-              <div
-                className={`w-[100px] h-[100px] flex justify-center items-center`}
-              >
-                <CircularProgress
-                  size={`100%`}
-                  sx={{ color: "rgba(0, 51, 102, 1)" }}
-                />
-              </div>
-            </div>
-          )}
-          {!loading && loginSuccess && (
+          {/*{loading && (*/}
+          {/*  <div className={`w-full h-full items-center justify-center flex`}>*/}
+          {/*    <div*/}
+          {/*      className={`w-[100px] h-[100px] flex justify-center items-center`}*/}
+          {/*    >*/}
+          {/*      <CircularProgress*/}
+          {/*        size={`100%`}*/}
+          {/*        sx={{ color: "rgba(0, 51, 102, 1)" }}*/}
+          {/*      />*/}
+          {/*    </div>*/}
+          {/*  </div>*/}
+          {/*)}*/}
+          {loading && loginSuccess && (
             <div className={`w-full h-full items-center justify-center flex`}>
               <div className="absolute text-blue font-bold text-2xl text-center">
                 Login Success <br /> Redirecting...
               </div>
             </div>
           )}
-          {!loading && !loginSuccess && (
+          {!loginSuccess && (
             <>
               <div className="w-full font-bold text-[28px] mt-[50px] text-center text-blue select-none absolute mb-auto">
                 Virtual Window for Workplace Well-being
@@ -120,15 +149,23 @@ function Login() {
                       </span>
                     </div>
                     <div
-                      className={`text-red-2 font-bold text-xs ${loginFailed ? `` : `invisible`}`}
+                      className={`text-red-2 font-bold text-xs block h-4 select-none`}
                     >
-                      Invalid Login Credential
+                      {errorMessage}
                     </div>
                     <button
                       type="submit"
-                      className="bg-blue w-full mt-[8px] text-white p-1 rounded-3xl hover:bg-blue-2 uppercase "
+                      className={`bg-blue select-none w-full mt-[8px] text-white p-1 rounded-3xl uppercase h-[40px] flex items-center justify-center ${!loading && "hover:bg-blue-2"}`}
+                      disabled={loading}
                     >
-                      login
+                      {loading ? (
+                        <CircularProgress
+                          size="1.5rem"
+                          style={{ color: "#0074bc" }}
+                        />
+                      ) : (
+                        "Login"
+                      )}
                     </button>
                   </form>
                 </div>
@@ -136,18 +173,25 @@ function Login() {
                   className={`w-[210px] pl-[20px] border-blue border-dashed border-l-2 mt-[20px]`}
                 >
                   <div
-                    className={`items-center justify-center flex flex-col mt-[10px]`}
+                    className={`items-center justify-center flex flex-col mt-[10px] `}
                   >
                     <div>
-                      <QRCodeSVG
-                        value={`Virtual Window for Workplace Well-being`}
-                        size={120}
-                        bgColor="transparent"
-                        fgColor="#003366"
-                      />
+                      {deviceUUID === null ? (
+                        <CircularProgress
+                          size="7rem"
+                          style={{ color: "#003366" }}
+                        />
+                      ) : (
+                        <QRCodeSVG
+                          value={deviceUUID}
+                          size={120}
+                          bgColor="transparent"
+                          fgColor="#003366"
+                        />
+                      )}
                     </div>
                     <div
-                      className={`text-blue-3 text-[14px] text-center mt-2 leading-4`}
+                      className={`text-blue-3 text-[14px] text-center mt-2 leading-4 select-none`}
                     >
                       Scan this with your control app to sign in
                     </div>

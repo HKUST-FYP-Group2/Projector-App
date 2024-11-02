@@ -8,8 +8,9 @@ import {
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
+import Settings from "../data/settings.ts";
 
-interface ControlBarProps {
+interface SettingsBarProps {
   handleLogout: () => void;
   isFullScreen: boolean;
   handleFullScreen: () => void;
@@ -17,7 +18,8 @@ interface ControlBarProps {
   setShowSettingPanel: (value: boolean) => void;
   setIsClosingSettingsPanel: (value: boolean) => void;
   isBluetoothConnected: boolean;
-  setIsBluetoothConnected: (value: boolean) => void;
+  settings: Settings;
+  handleBluetoothSettings: () => void;
 }
 
 const SettingsBar = ({
@@ -28,18 +30,16 @@ const SettingsBar = ({
   setShowSettingPanel,
   setIsClosingSettingsPanel,
   isBluetoothConnected,
-  setIsBluetoothConnected,
-}: ControlBarProps) => {
+  settings,
+  handleBluetoothSettings,
+}: SettingsBarProps) => {
   const [togglePanel, setTogglePanel] = useState(false);
 
-  //TODO: Bluetooth Settings
-  function handleBluetoothSettings() {
-    setIsBluetoothConnected(!isBluetoothConnected);
-  }
+  if (!settings.settings_bar.show_settings_bar) return null;
 
   return (
     <div
-      className={`absolute flex bottom-2 left-0 z-20 opacity-50 hover:opacity-100 pl-2 pt-10 pr-10 ${showSettingPanel ? `opacity-100` : ``} `}
+      className={`absolute flex bottom-2 left-0 z-20 opacity-70 hover:opacity-100 pl-2 pt-[200px] pr-[200px] ${showSettingPanel ? `visible` : ``} `}
       onMouseOver={() => {
         setTogglePanel(true);
       }}
@@ -48,7 +48,17 @@ const SettingsBar = ({
       }}
     >
       <div
-        className={`flex rounded-xl pt-1 pb-1 pr-2 pl-2 ${togglePanel || showSettingPanel ? `bg-blue bg-opacity-60 text-gold` : `bg-transparent text-white`}`}
+        className="flex rounded-xl pt-1 pb-1 pr-2 pl-2 "
+        style={{
+          color:
+            togglePanel || showSettingPanel
+              ? settings.settings_bar.hover_icon_color
+              : settings.settings_bar.default_color,
+          backgroundColor:
+            togglePanel || showSettingPanel
+              ? `${settings.settings_bar.hover_background_color}ac` // Assuming hover_background_color is in hex format
+              : "transparent",
+        }}
       >
         <div onClick={handleLogout} className={`display-buttons-style`}>
           <CustomizedTooltip title={`Logout`}>

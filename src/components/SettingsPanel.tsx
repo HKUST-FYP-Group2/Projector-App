@@ -7,9 +7,9 @@ import {
   Settings as SettingsIcon,
   LogoutOutlined as LogoutOutlinedIcon,
 } from "@mui/icons-material";
-import { useEffect, useState } from "react";
-import LeftPanelItem from "./SettingsPanelLeft.tsx";
-import RightPanelContent from "./SettingsPanelRight.tsx";
+import { useEffect, useMemo, useState } from "react";
+import LeftPanelItem from ".//SettingsPanelLeft.tsx";
+import RightPanelContent from ".//SettingsPanelRight.tsx";
 import Settings from "../data/settings.ts";
 
 interface SettingsPanelProps {
@@ -20,6 +20,10 @@ interface SettingsPanelProps {
   handleVideoSettings: () => void;
   settings: Settings;
   setSettings: (value: Settings) => void;
+  userStatus?: { username: string };
+  setSnackbarOpen: (value: boolean) => void;
+  setSnackbarMessage: (value: string) => void;
+  setSnackbarSeverity: (value: "success" | "error") => void;
 }
 
 const SettingsPanel = ({
@@ -30,18 +34,24 @@ const SettingsPanel = ({
   handleVideoSettings,
   settings,
   setSettings,
+  userStatus,
+  setSnackbarOpen,
+  setSnackbarMessage,
+  setSnackbarSeverity,
 }: SettingsPanelProps) => {
-  const [selectedItem, setSelectedItem] = useState<string>("");
+  const [selectedItem, setSelectedItem] = useState<string>("Video");
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const items = [
-    { icon: VideoSettingsOutlinedIcon, label: "Video" },
-    { icon: SettingsBrightnessIcon, label: "Brightness" },
-    { icon: VolumeUpIcon, label: "Volume" },
-    { icon: ScheduleIcon, label: "Clock" },
-    { icon: SettingsIcon, label: "Settings Bar" },
-    { icon: LogoutOutlinedIcon, label: "Logout" },
-  ];
+  const items = useMemo(
+    () => [
+      { icon: VideoSettingsOutlinedIcon, label: "Video" },
+      { icon: SettingsBrightnessIcon, label: "Brightness" },
+      { icon: VolumeUpIcon, label: "Volume" },
+      { icon: ScheduleIcon, label: "Clock" },
+      { icon: SettingsIcon, label: "Settings Bar" },
+      { icon: LogoutOutlinedIcon, label: "Logout" },
+    ],
+    [],
+  );
 
   useEffect(() => {
     if (isClosingSettingsPanel) {
@@ -50,7 +60,12 @@ const SettingsPanel = ({
         setIsClosingSettingsPanel(false);
       }, 290);
     }
-  }, [isClosingSettingsPanel, showSettingPanel, setShowSettingPanel]);
+  }, [
+    isClosingSettingsPanel,
+    showSettingPanel,
+    setShowSettingPanel,
+    setIsClosingSettingsPanel,
+  ]);
 
   //keyboard listener
   useEffect(() => {
@@ -90,14 +105,14 @@ const SettingsPanel = ({
         <div
           className={`h-fit w-full bg-blue text-white p-[20px] flex ${isClosingSettingsPanel ? "fade-out-short" : "fade-in-short"}`}
         >
-          <div className={`h-full w-[30%] flex flex-col`}>
+          <div className={`h-full w-[30%] flex flex-col z-10`}>
             <div className={`w-full h-fit flex`}>
               <AccountCircleIcon
                 style={{ fontSize: "70px" }}
                 className={`text-white`}
               />
               <div className={`w-full ml-1 text-white flex items-center`}>
-                User Name
+                {userStatus?.username || "User"}
               </div>
             </div>
             {items.map((item) => (
@@ -115,6 +130,9 @@ const SettingsPanel = ({
             handleVideoSettings={handleVideoSettings}
             settings={settings}
             setSettings={setSettings}
+            setSnackbarOpen={setSnackbarOpen}
+            setSnackbarMessage={setSnackbarMessage}
+            setSnackbarSeverity={setSnackbarSeverity}
           />
         </div>
       </div>
