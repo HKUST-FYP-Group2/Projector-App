@@ -12,13 +12,13 @@ const Clock = ({ settings }: ClockProps) => {
         .toLocaleTimeString([], {
           hour: "2-digit",
           minute: "2-digit",
-          second: settings.clock.showSecond ? "2-digit" : undefined,
-          hour12: settings.clock.hour12,
+          second: settings.clock.show_second ? "2-digit" : undefined,
+          hour12: settings.clock.hour_12,
         })
         .replace("am", "AM")
         .replace("pm", "PM");
     },
-    [settings.clock.showSecond, settings.clock.hour12],
+    [settings.clock.show_second, settings.clock.hour_12],
   );
 
   const [time, setTime] = React.useState(formatTime(new Date()));
@@ -30,20 +30,20 @@ const Clock = ({ settings }: ClockProps) => {
     return () => clearInterval(interval);
   }, [formatTime]);
 
-  if (!settings.clock.showClock) return null;
+  if (!settings.clock.show_clock) return null;
 
   return (
     <div className={`absolute bottom-0 right-0 flex `}>
       <div
         className={`absolute z-30 w-full h-full blur opacity-60 fade-in-60 rounded-[30%]`}
-        style={{ backgroundColor: `${settings.clock.backgroundColor}` }}
+        style={{ backgroundColor: `${settings.clock.background_color}` }}
       ></div>
       <div className={`z-40 px-5 py-3 w-full h-full select-none`}>
         <div
           className={`flex font-bold fade-in `}
           style={{
-            fontSize: `${settings.clock.fontSize.toString()}px`,
-            color: `${settings.clock.fontColor}`,
+            fontSize: `${settings.clock.font_size.toString()}px`,
+            color: `${settings.clock.font_color}`,
           }}
         >
           {time}

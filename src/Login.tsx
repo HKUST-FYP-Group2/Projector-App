@@ -1,22 +1,34 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlinedIcon from "@mui/icons-material/VisibilityOffOutlined";
 import CircularProgress from "@mui/material/CircularProgress";
 import { QRCodeSVG } from "qrcode.react";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import { useCookies } from "react-cookie";
+import useAuth from "./components/useAuth.tsx";
 
 function Login() {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [loginFailed, setLoginFailed] = useState(0);
+  const [errorMessage, setErrorMessage] = useState("");
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
-  const [deviceUUID, setDeviceUUID] = useState("sdsd");
-  const [, setCookie] = useCookies(["token"]);
+  const [deviceUUID, setDeviceUUID] = useState(null);
   const loginMainRef = useRef<HTMLDivElement>(null);
+  const { handleLogin, getDeviceUUID } = useAuth();
+
+  useEffect(() => {
+    const fetchDeviceUUID = async () => {
+      const uuid = await getDeviceUUID();
+      if (uuid === null) {
+        setTimeout(fetchDeviceUUID, 3000);
+      } else {
+        setDeviceUUID(uuid);
+      }
+    };
+    fetchDeviceUUID();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const handleSubmit = async (event: React.FormEvent) => {
     setLoading(true);
@@ -38,38 +50,21 @@ function Login() {
       return;
     }
 
-    try {
-      const res = await axios.post(
-        `/api/login`,
-        {
-          username: username.value,
-          password: password.value,
-        },
-        {
-          timeout: 5000, // 5 seconds timeout
-        },
-      );
-
-      if (res.status === 200) {
-        setCookie("token", res.data.token, { path: "/" });
-        setLoading(false);
-        setLoginSuccess(true);
-        setIsFadingOut(true);
-        setTimeout(() => {
-          navigate("/");
-        }, 1000);
-      } else {
-        setLoginFailed(res.status);
-        alert(res.data);
-      }
-    } catch (err: unknown) {
-      setLoading(false);
-      if (axios.isAxiosError(err) && err.response) {
-        setLoginFailed(err.response.status);
-      } else {
-        setLoginFailed(500);
-      }
-    }
+    await handleLogin(username.value, password.value).then(
+      (r: { login_success: any; error_message: string }) => {
+        if (r.login_success) {
+          setLoading(false);
+          setLoginSuccess(true);
+          setIsFadingOut(true);
+          setTimeout(() => {
+            navigate("/");
+          }, 1000);
+        } else {
+          setLoading(false);
+          setErrorMessage(r.error_message);
+        }
+      },
+    );
   };
 
   return (
@@ -156,9 +151,7 @@ function Login() {
                     <div
                       className={`text-red-2 font-bold text-xs block h-4 select-none`}
                     >
-                      {loginFailed === 401 && "Invalid Login Credential"}
-                      {loginFailed === 500 && "Internal Server Error"}
-                      {loginFailed === 404 && "Not Found"}
+                      {errorMessage}
                     </div>
                     <button
                       type="submit"

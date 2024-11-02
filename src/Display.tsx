@@ -4,7 +4,10 @@ import ReactPlayer from "react-player";
 import Clock from "./components/Clock.tsx";
 import SettingsBar from "./components/SettingsBar.tsx";
 import SettingsPanel from "./components/SettingsPanel.tsx";
+import ConfirmWindow from "./components/ConfirmWindow.tsx";
 import settings_default from "./data/settings.json";
+import useBluetooth from "./components/useBluetooth.tsx";
+import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
 
 interface DisplayProps {
   userStatus?: any;
@@ -12,18 +15,30 @@ interface DisplayProps {
 }
 
 function Display({ userStatus, setUserStatus }: DisplayProps) {
-  const { loginStatus, logout } = useAuth();
+  const { loginStatus, handleLogout } = useAuth();
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
   const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
+  const [isConfirmLogoutWindowShown, setIsConfirmLogoutWindowShown] =
+    useState(false);
+  const [isConfirmBluetoothWindowShown, setIsConfirmBluetoothWindowShown] =
+    useState(false);
+  let confirmDisconnect = false;
   const [settings, setSettings] = useState(settings_default);
   const videoRef = useRef<HTMLDivElement>(null);
 
+  const [snackbarOpen, setSnackbarOpen] = useState(false);
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
+    "success",
+  );
+
   useEffect(() => {
     loginStatus().then((r) => setUserStatus(r));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fullscreen event listener
@@ -53,14 +68,43 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
     setIsPlaying(!isPlaying);
   }
 
-  //logout function
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  function handleLogout() {
-    setIsFadingOut(true);
-    setTimeout(() => {
-      logout();
-    }, 800); // Match the duration of the fade-out animation
+  const { isBluetoothAvailable, setupConnection, disconnect } = useBluetooth(
+    isBluetoothConnected,
+    setIsBluetoothConnected,
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarSeverity,
+  );
+
+  //Bluetooth Settings
+  async function handleBluetoothSettings() {
+    if (!isBluetoothAvailable()) return;
+    if (isBluetoothConnected) {
+      if (confirmDisconnect) {
+        await disconnect();
+        confirmDisconnect = false;
+      } else {
+        setIsConfirmBluetoothWindowShown(true);
+      }
+    } else {
+      await setupConnection();
+    }
   }
+
+  //logout function
+  const logoutFromDisplay = () => {
+    setIsFadingOut(true);
+
+    if (isBluetoothConnected) {
+      confirmDisconnect = true;
+      (async () => {
+        await handleBluetoothSettings();
+      })();
+    }
+    setTimeout(() => {
+      handleLogout().then((r) => setUserStatus(r));
+    }, 800);
+  };
 
   //keyboard listener
   useEffect(() => {
@@ -69,7 +113,7 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
         setIsClosingSettingsPanel(true);
       }
       if (event.key === "l") {
-        handleLogout();
+        logoutFromDisplay();
       }
       if (event.key === "f") {
         handleFullScreen();
@@ -80,10 +124,11 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       if (event.key === "c") {
         setSettings({
           ...settings,
-          clock: { ...settings.clock, showClock: !settings.clock.showClock },
+          clock: { ...settings.clock, show_clock: !settings.clock.show_clock },
         });
       }
       if (event.key === "b") {
+        console.log(userStatus);
         setIsBluetoothConnected(
           (prevIsBluetoothConnected) => !prevIsBluetoothConnected,
         );
@@ -94,7 +139,8 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
     };
-  }, [handleLogout, settings]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <div
@@ -147,18 +193,56 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
             settings={settings}
             setSettings={setSettings}
             userStatus={userStatus}
+            setSnackbarOpen={setSnackbarOpen}
+            setSnackbarMessage={setSnackbarMessage}
+            setSnackbarSeverity={setSnackbarSeverity}
           />
+
           <SettingsBar
-            handleLogout={handleLogout}
+            handleLogout={() => {
+              setIsConfirmLogoutWindowShown(true);
+            }}
             isFullScreen={isFullScreen}
             handleFullScreen={handleFullScreen}
             showSettingPanel={showSettingPanel}
             setShowSettingPanel={setShowSettingPanel}
             setIsClosingSettingsPanel={setIsClosingSettingsPanel}
             isBluetoothConnected={isBluetoothConnected}
-            setIsBluetoothConnected={setIsBluetoothConnected}
+            settings={settings}
+            handleBluetoothSettings={handleBluetoothSettings}
           />
+
           <Clock settings={settings} />
+
+          <ConfirmWindow
+            message="Are you sure you want to logout?"
+            onConfirm={logoutFromDisplay}
+            onCancel={() => {
+              setIsConfirmLogoutWindowShown(false);
+            }}
+            isConfirmWindowShown={isConfirmLogoutWindowShown}
+          />
+
+          <ConfirmWindow
+            message="Are you sure you want to disconnect the Remote Control?"
+            onConfirm={() => {
+              confirmDisconnect = true;
+              handleBluetoothSettings().then(() => {
+                setIsConfirmBluetoothWindowShown(false);
+              });
+            }}
+            onCancel={() => {
+              setIsConfirmBluetoothWindowShown(false);
+            }}
+            isConfirmWindowShown={isConfirmBluetoothWindowShown}
+          />
+
+          <CustomizedSnackBar
+            snackbarMessage={snackbarMessage}
+            snackbarSeverity={snackbarSeverity}
+            snackbarOpen={snackbarOpen}
+            setSnackbarOpen={setSnackbarOpen}
+          />
         </>
       )}
     </div>

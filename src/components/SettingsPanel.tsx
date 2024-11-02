@@ -21,6 +21,9 @@ interface SettingsPanelProps {
   settings: Settings;
   setSettings: (value: Settings) => void;
   userStatus?: { username: string };
+  setSnackbarOpen: (value: boolean) => void;
+  setSnackbarMessage: (value: string) => void;
+  setSnackbarSeverity: (value: "success" | "error") => void;
 }
 
 const SettingsPanel = ({
@@ -32,8 +35,11 @@ const SettingsPanel = ({
   settings,
   setSettings,
   userStatus,
+  setSnackbarOpen,
+  setSnackbarMessage,
+  setSnackbarSeverity,
 }: SettingsPanelProps) => {
-  const [selectedItem, setSelectedItem] = useState<string>("");
+  const [selectedItem, setSelectedItem] = useState<string>("Video");
 
   const items = useMemo(
     () => [
@@ -124,6 +130,9 @@ const SettingsPanel = ({
             handleVideoSettings={handleVideoSettings}
             settings={settings}
             setSettings={setSettings}
+            setSnackbarOpen={setSnackbarOpen}
+            setSnackbarMessage={setSnackbarMessage}
+            setSnackbarSeverity={setSnackbarSeverity}
           />
         </div>
       </div>

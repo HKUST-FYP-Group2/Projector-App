@@ -1,44 +1,45 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
 const useWebSocket = () => {
   const [messages, setMessages] = useState<string[]>([]);
   const [isConnected, setIsConnected] = useState(false);
-  const ws = useRef<WebSocket | null>(null);
-  const VITE_WS_ENDPOINT = "ws://localhost:80";
+  const [socket, setSocket] = useState<Socket | null>(null);
+  const VITE_WS_ENDPOINT = "http://127.0.0.1:5000";
 
   useEffect(() => {
-    ws.current = new WebSocket(VITE_WS_ENDPOINT);
-    console.log(VITE_WS_ENDPOINT);
+    const newSocket = io(VITE_WS_ENDPOINT);
+    setSocket(newSocket);
 
-    ws.current.onopen = () => {
-      console.log("WebSocket connection opened");
+    newSocket.on("connect", () => {
+      console.log("Socket.io connection opened");
       setIsConnected(true);
-    };
+    });
 
-    ws.current.onmessage = (event) => {
-      console.log("WebSocket message received:", event.data);
-      setMessages((prevMessages) => [...prevMessages, event.data]);
-    };
+    newSocket.on("message", (data: string) => {
+      console.log("Socket.io message received:", data);
+      setMessages((prevMessages) => [...prevMessages, data]);
+    });
 
-    ws.current.onerror = (error) => {
-      console.error("WebSocket error:", error);
-    };
-
-    ws.current.onclose = () => {
-      console.log("WebSocket connection closed");
+    newSocket.on("disconnect", () => {
+      console.log("Socket.io connection closed");
       setIsConnected(false);
-    };
+    });
+
+    newSocket.on("connect_error", (error) => {
+      console.error("Socket.io connection error:", error);
+    });
 
     return () => {
-      ws.current?.close();
+      newSocket.close();
     };
   }, [VITE_WS_ENDPOINT]);
 
   const sendMessage = (message: string) => {
-    if (ws.current && ws.current.readyState === WebSocket.OPEN) {
-      ws.current.send(message);
+    if (socket) {
+      socket.emit("message", message);
     } else {
-      console.error("WebSocket is not open");
+      console.error("Socket.io is not connected");
     }
   };
 
