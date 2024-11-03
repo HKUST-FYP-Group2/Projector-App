@@ -128,10 +128,9 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
         });
       }
       if (event.key === "b") {
-        console.log(userStatus);
-        setIsBluetoothConnected(
-          (prevIsBluetoothConnected) => !prevIsBluetoothConnected,
-        );
+        (async () => {
+          await handleBluetoothSettings();
+        })();
       }
     };
 

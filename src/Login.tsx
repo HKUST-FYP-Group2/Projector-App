@@ -26,7 +26,9 @@ function Login() {
         setDeviceUUID(uuid);
       }
     };
-    fetchDeviceUUID();
+    (async () => {
+      await fetchDeviceUUID();
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
