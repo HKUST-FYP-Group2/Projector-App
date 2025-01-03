@@ -8,6 +8,7 @@ import ConfirmWindow from "./components/ConfirmWindow.tsx";
 import settings_default from "./data/settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
+import videoFile from "../public/2-2-4k.mp4"; // Import the video file
 
 interface DisplayProps {
   userStatus?: any;
@@ -68,17 +69,23 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
     setIsPlaying(!isPlaying);
   }
 
-  const { isBluetoothAvailable, setupConnection, disconnect } = useBluetooth(
-    isBluetoothConnected,
-    setIsBluetoothConnected,
-    setSnackbarOpen,
-    setSnackbarMessage,
-    setSnackbarSeverity,
-  );
+  const { isBluetoothAvailable, setupConnection, disconnect, sendMessage } =
+    useBluetooth(
+      isBluetoothConnected,
+      setIsBluetoothConnected,
+      setSnackbarOpen,
+      setSnackbarMessage,
+      setSnackbarSeverity,
+    );
 
   //Bluetooth Settings
   async function handleBluetoothSettings() {
-    if (!isBluetoothAvailable()) return;
+    if (!isBluetoothAvailable()) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("Bluetooth is not available on this device");
+      setSnackbarSeverity("error");
+      return;
+    }
     if (isBluetoothConnected) {
       if (confirmDisconnect) {
         await disconnect();
@@ -147,6 +154,23 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       style={{ filter: `brightness(${settings.brightness}%)` }}
     >
       <div
+        className={`absolute top-0 right-0 w-[100px] h-[100px] text-black z-50 opacity-100`}
+      >
+        <textarea id="messageInput" className="w-full h-[70%]"></textarea>
+        <button
+          className="w-full h-[30%] bg-blue text-white"
+          onClick={() => {
+            const message = (
+              document.getElementById("messageInput") as HTMLTextAreaElement
+            ).value;
+            sendMessage(message);
+          }}
+        >
+          Send
+        </button>
+      </div>
+
+      <div
         ref={videoRef}
         className={`w-full h-full absolute z-10 bg-blue ${isFadingOut ? "fade-in" : "fade-out"}`}
         onAnimationEnd={() => {
@@ -163,13 +187,14 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       <div className={`w-full h-full absolute z-0 flex`}>
         {isPlaying && (
           <ReactPlayer
-            url="https://youtu.be/3c-rhqg4nuY?si=hLoVJSOIA22a6eEG"
-            className={`w-full h-full`}
+            url={videoFile}
+            className="react-player-cover"
             playing
             loop
             muted
             width="100%"
             height="100%"
+            style={{ position: "absolute", top: 0, left: 0 }}
           />
         )}
         {!isPlaying && (
@@ -195,6 +220,7 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
             setSnackbarOpen={setSnackbarOpen}
             setSnackbarMessage={setSnackbarMessage}
             setSnackbarSeverity={setSnackbarSeverity}
+            sendMessage={sendMessage}
           />
 
           <SettingsBar
