@@ -8,6 +8,7 @@ import ConfirmWindow from "./components/ConfirmWindow.tsx";
 import settings_default from "./data/settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
+
 import videoFile from "../public/2-2-4k.mp4"; // Import the video file
 
 interface DisplayProps {
@@ -17,6 +18,7 @@ interface DisplayProps {
 
 function Display({ userStatus, setUserStatus }: DisplayProps) {
   const { loginStatus, handleLogout } = useAuth();
+  const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -28,7 +30,6 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
   const [isConfirmBluetoothWindowShown, setIsConfirmBluetoothWindowShown] =
     useState(false);
   let confirmDisconnect = false;
-  const [settings, setSettings] = useState(settings_default);
   const videoRef = useRef<HTMLDivElement>(null);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -69,14 +70,15 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
     setIsPlaying(!isPlaying);
   }
 
-  const { isBluetoothAvailable, setupConnection, disconnect, sendMessage } =
-    useBluetooth(
-      isBluetoothConnected,
-      setIsBluetoothConnected,
-      setSnackbarOpen,
-      setSnackbarMessage,
-      setSnackbarSeverity,
-    );
+  const { isBluetoothAvailable, setupConnection, disconnect } = useBluetooth(
+    isBluetoothConnected,
+    setIsBluetoothConnected,
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarSeverity,
+    settings,
+    setSettings,
+  );
 
   //Bluetooth Settings
   async function handleBluetoothSettings() {
@@ -153,22 +155,22 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       className={`bg-blue w-screen h-screen text-white`}
       style={{ filter: `brightness(${settings.brightness}%)` }}
     >
-      <div
-        className={`absolute top-0 right-0 w-[100px] h-[100px] text-black z-50 opacity-100`}
-      >
-        <textarea id="messageInput" className="w-full h-[70%]"></textarea>
-        <button
-          className="w-full h-[30%] bg-blue text-white"
-          onClick={() => {
-            const message = (
-              document.getElementById("messageInput") as HTMLTextAreaElement
-            ).value;
-            sendMessage(message);
-          }}
-        >
-          Send
-        </button>
-      </div>
+      {/*<div*/}
+      {/*  className={`absolute top-0 right-0 w-[100px] h-[100px] text-black z-50 opacity-100`}*/}
+      {/*>*/}
+      {/*  <textarea id="messageInput" className="w-full h-[70%]"></textarea>*/}
+      {/*  <button*/}
+      {/*    className="w-full h-[30%] bg-blue text-white"*/}
+      {/*    onClick={() => {*/}
+      {/*      const message = (*/}
+      {/*        document.getElementById("messageInput") as HTMLTextAreaElement*/}
+      {/*      ).value;*/}
+      {/*      sendMessage(message);*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    Send*/}
+      {/*  </button>*/}
+      {/*</div>*/}
 
       <div
         ref={videoRef}
@@ -220,7 +222,6 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
             setSnackbarOpen={setSnackbarOpen}
             setSnackbarMessage={setSnackbarMessage}
             setSnackbarSeverity={setSnackbarSeverity}
-            sendMessage={sendMessage}
           />
 
           <SettingsBar

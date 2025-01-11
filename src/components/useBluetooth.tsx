@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Settings from "../data/settings.ts";
 
 const useBluetooth = (
   isBluetoothConnected: boolean,
@@ -6,6 +7,8 @@ const useBluetooth = (
   setSnackbarOpen: (value: boolean) => void,
   setSnackbarMessage: (value: string) => void,
   setSnackbarSeverity: (value: "success" | "error") => void,
+  settings: Settings,
+  setSettings: (value: Settings) => void,
 ) => {
   const device_name = "Virtual_Window_Control";
   const bluetooth_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
@@ -15,6 +18,21 @@ const useBluetooth = (
   const [bluetooth_service_found, setBluetoothServiceFound] =
     useState<any>(null);
   const [characteristic_found, setCharacteristic_found] = useState<any>(null);
+
+  useEffect(() => {
+    sendMessage(getMessageString()).then((r) => console.log(r));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
+
+  function getMessageString() {
+    return (
+      "brightness-" +
+      settings.brightness.toString() +
+      "|" +
+      "volume-" +
+      settings.volume.toString()
+    );
+  }
 
   function isBluetoothAvailable() {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -64,23 +82,40 @@ const useBluetooth = (
       );
       await characteristic.startNotifications();
       console.log("Notifications Started.");
+
+      await sendMessage(getMessageString());
     } catch (error) {
       console.log("Error:", error);
+      setIsBluetoothConnected(false);
       setSnackbarMessage("Failed to connect Remote Control");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   }
 
+  function updateSettings(received: string) {
+    const [brightnessPart, volumePart] = received.split("|");
+    const brightness = brightnessPart.split("-")[1];
+    const volume = volumePart.split("-")[1];
+    console.log(brightness, volume);
+    setSettings({
+      ...settings,
+      brightness: parseInt(brightness),
+      volume: parseInt(volume),
+    });
+  }
+
   function handleCharacteristicChange(event: {
     target: { value: AllowSharedBufferSource | undefined };
   }) {
-    const newValueReceived = new TextDecoder().decode(event.target.value);
-    console.log("Value: ", newValueReceived);
+    const received = new TextDecoder().decode(event.target.value);
+    console.log(received);
+    updateSettings(received);
   }
 
   function onDisconnected(event: { target: { device: { name: any } } }) {
     console.log("Device Disconnected:", event.target.device.name);
+    setIsBluetoothConnected(false);
     setupConnection().then(() => setIsBluetoothConnected(false));
   }
 
@@ -126,18 +161,14 @@ const useBluetooth = (
   }
 
   async function sendMessage(message: string) {
-    if (isBluetoothConnected && characteristic_found) {
-      try {
-        const encoder = new TextEncoder();
-        const value = encoder.encode(message);
-        characteristic_found.writeValue(value);
-        console.log(message);
-        return true;
-      } catch (error) {
-        console.log(error);
-        return false;
-      }
-    } else {
+    try {
+      const encoder = new TextEncoder();
+      const value = encoder.encode(message);
+      characteristic_found.writeValue(value);
+      console.log(message);
+      return true;
+    } catch (error) {
+      console.log(error);
       return false;
     }
   }

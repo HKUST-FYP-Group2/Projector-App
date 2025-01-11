@@ -14,6 +14,7 @@ interface Settings {
     hover_background_color: string;
     hover_icon_color: string;
   };
+  volume: number;
 }
 
 export default Settings;
