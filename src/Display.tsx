@@ -21,7 +21,7 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
   const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
   const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
@@ -189,13 +189,13 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       <div className={`w-full h-full absolute z-0 flex`}>
         {isPlaying && (
           <ReactPlayer
-            url={videoFile}
+            url={"https://youtube.com/live/KyrUkpCcnQw?feature=share"}
             className="react-player-cover"
             playing
             loop
             muted
             width="100%"
-            height="100%"
+            height="200%"
             style={{ position: "absolute", top: 0, left: 0 }}
           />
         )}

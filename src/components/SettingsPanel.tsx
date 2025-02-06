@@ -48,7 +48,7 @@ const SettingsPanel = ({
       { icon: VolumeUpIcon, label: "Volume" },
       { icon: ScheduleIcon, label: "Clock" },
       { icon: SettingsIcon, label: "Settings Bar" },
-      { icon: LogoutOutlinedIcon, label: "Keymap" },
+      { icon: LogoutOutlinedIcon, label: "Logout" },
     ],
     [],
   );

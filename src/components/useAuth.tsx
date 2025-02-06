@@ -38,6 +38,7 @@ const useAuth = () => {
         {
           username: username,
           password: password,
+          device: "projector-app",
         },
         {
           timeout: 5000,
