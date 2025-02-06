@@ -17,7 +17,6 @@ interface SettingsPanelProps {
   setShowSettingPanel: (value: boolean) => void;
   isClosingSettingsPanel: boolean;
   setIsClosingSettingsPanel: (value: boolean) => void;
-  handleVideoSettings: () => void;
   settings: Settings;
   setSettings: (value: Settings) => void;
   userStatus?: { username: string };
@@ -31,7 +30,6 @@ const SettingsPanel = ({
   setShowSettingPanel,
   isClosingSettingsPanel,
   setIsClosingSettingsPanel,
-  handleVideoSettings,
   settings,
   setSettings,
   userStatus,
@@ -127,7 +125,6 @@ const SettingsPanel = ({
           </div>
           <RightPanelContent
             selectedItem={selectedItem}
-            handleVideoSettings={handleVideoSettings}
             settings={settings}
             setSettings={setSettings}
             setSnackbarOpen={setSnackbarOpen}

@@ -9,7 +9,7 @@ import settings_default from "./data/settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
 
-import videoFile from "../public/2-2-4k.mp4"; // Import the video file
+// import videoFile from "../public/2-2-4k.mp4";
 
 interface DisplayProps {
   userStatus?: any;
@@ -21,7 +21,6 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
   const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(true);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
   const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
@@ -63,11 +62,6 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
     } else {
       element.requestFullscreen().then(() => setIsFullScreen(true));
     }
-  }
-
-  //TODO: Video Settings
-  function handleVideoSettings() {
-    setIsPlaying(!isPlaying);
   }
 
   const { isBluetoothAvailable, setupConnection, disconnect } = useBluetooth(
@@ -187,19 +181,18 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       ></div>
 
       <div className={`w-full h-full absolute z-0 flex`}>
-        {isPlaying && (
+        {settings.video.show_video && (
           <ReactPlayer
-            url={"https://youtube.com/live/KyrUkpCcnQw?feature=share"}
-            className="react-player-cover"
+            url={settings.video.video_url}
             playing
-            loop
             muted
+            // controls={true}
             width="100%"
             height="200%"
             style={{ position: "absolute", top: 0, left: 0 }}
           />
         )}
-        {!isPlaying && (
+        {!settings.video.show_video && (
           <img
             src={`https://join.hkust.edu.hk/sites/default/files/2020-06/hkust.jpg`}
             className={`w-full bg-blue h-full object-cover`}
@@ -215,7 +208,6 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
             setShowSettingPanel={setShowSettingPanel}
             isClosingSettingsPanel={isClosingSettingsPanel}
             setIsClosingSettingsPanel={setIsClosingSettingsPanel}
-            handleVideoSettings={handleVideoSettings}
             settings={settings}
             setSettings={setSettings}
             userStatus={userStatus}

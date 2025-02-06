@@ -8,7 +8,6 @@ import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 interface SettingsPanelRightProps {
   selectedItem: string;
-  handleVideoSettings: () => void;
   settings: Settings;
   setSettings: (value: Settings) => void;
   setSnackbarOpen: (value: boolean) => void;
@@ -26,7 +25,6 @@ const theme = createTheme({
 
 const SettingsPanelRight = ({
   selectedItem,
-  handleVideoSettings,
   settings,
   setSettings,
   setSnackbarOpen,
@@ -43,9 +41,58 @@ const SettingsPanelRight = ({
           className={`mt-3 h-[300px] overflow-y-auto py-2 scrollbar scrollbar-thumb-blue-3 scrollbar-track-blue`}
         >
           {selectedItem === "Video" && (
-            <div>
-              <input type="checkbox" onChange={handleVideoSettings} />
-              Video
+            <div className={`w-full h-fit flex flex-col items-center`}>
+              <div className={`settings-panel-switch-container`}>
+                <span className={`mt-[7px]`}>Show Video</span>
+                <Switch
+                  checked={settings.video.show_video}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      video: {
+                        ...settings.video,
+                        show_video: e.target.checked,
+                      },
+                    })
+                  }
+                  color={`primary`}
+                  className={`mr-0 ml-auto`}
+                />
+              </div>
+              <div
+                className={`settings-panel-switch-container`}
+                style={{ display: "flex", alignItems: "center" }}
+              >
+                <span>Video Url</span>
+                <input
+                  type="textarea"
+                  value={settings.video.video_url}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      video: {
+                        ...settings.video,
+                        video_url: e.target.value,
+                      },
+                    })
+                  }
+                  className={`mr-0 ml-2 w-auto bg-transparent border-[1px] rounded px-1`}
+                  style={{ flexGrow: 1 }}
+                />
+              </div>
+              <div
+                className={`settings-panel-switch-container cursor-pointer hover:bg-yellow`}
+                onClick={() =>
+                  setSettings({
+                    ...settings,
+                    video: {
+                      ...defaultSettings.video,
+                    },
+                  })
+                }
+              >
+                <span className={`mt-[7px]`}>Reset Default</span>
+              </div>
             </div>
           )}
           {selectedItem === "Brightness" && (
