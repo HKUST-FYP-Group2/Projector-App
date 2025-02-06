@@ -15,6 +15,10 @@ interface Settings {
     hover_icon_color: string;
   };
   volume: number;
+  video: {
+    show_video: boolean;
+    video_url: string;
+  };
 }
 
 export default Settings;

@@ -14,5 +14,9 @@
     "hover_background_color": "#003366",
     "hover_icon_color": "#996600"
   },
-  "volume": 50
+  "volume": 50,
+  "video": {
+    "show_video": true,
+    "video_url": "https://youtube.com/live/KhwqzOj_QTs?feature=share"
+  }
 }
