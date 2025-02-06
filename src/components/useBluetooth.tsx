@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Settings from "../data/settings.ts";
 
 const useBluetooth = (
   isBluetoothConnected: boolean,
@@ -6,16 +7,32 @@ const useBluetooth = (
   setSnackbarOpen: (value: boolean) => void,
   setSnackbarMessage: (value: string) => void,
   setSnackbarSeverity: (value: "success" | "error") => void,
+  settings: Settings,
+  setSettings: (value: Settings) => void,
 ) => {
-  const device_name = "ESP32";
+  const device_name = "Virtual_Window_Control";
   const bluetooth_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
-  const characteristic_receive_UUID = "19b10001-e8f2-537e-4f6c-d104768a1214";
+  const characteristic_uuid = "19b10001-e8f2-537e-4f6c-d104768a1214";
 
   const [bluetooth_server, setBluetoothServer] = useState<any>(null);
   const [bluetooth_service_found, setBluetoothServiceFound] =
     useState<any>(null);
-  const [characteristic_receive_found, setCharacteristic_receive_found] =
-    useState<any>(null);
+  const [characteristic_found, setCharacteristic_found] = useState<any>(null);
+
+  useEffect(() => {
+    sendMessage(getMessageString()).then((r) => console.log(r));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings]);
+
+  function getMessageString() {
+    return (
+      "brightness-" +
+      settings.brightness.toString() +
+      "|" +
+      "volume-" +
+      settings.volume.toString()
+    );
+  }
 
   function isBluetoothAvailable() {
     // eslint-disable-next-line @typescript-eslint/ban-ts-comment
@@ -49,10 +66,9 @@ const useBluetooth = (
       setBluetoothServiceFound(service);
       console.log("Service found", service);
 
-      const characteristic = await service.getCharacteristic(
-        characteristic_receive_UUID,
-      );
-      setCharacteristic_receive_found(characteristic);
+      const characteristic =
+        await service.getCharacteristic(characteristic_uuid);
+      setCharacteristic_found(characteristic);
       setIsBluetoothConnected(true);
       setSnackbarMessage("Remote Control connected successfully");
       setSnackbarSeverity("success");
@@ -66,36 +82,53 @@ const useBluetooth = (
       );
       await characteristic.startNotifications();
       console.log("Notifications Started.");
+
+      await sendMessage(getMessageString());
     } catch (error) {
       console.log("Error:", error);
+      setIsBluetoothConnected(false);
       setSnackbarMessage("Failed to connect Remote Control");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
     }
   }
 
+  function updateSettings(received: string) {
+    const [brightnessPart, volumePart] = received.split("|");
+    const brightness = brightnessPart.split("-")[1];
+    const volume = volumePart.split("-")[1];
+    console.log(brightness, volume);
+    setSettings({
+      ...settings,
+      brightness: parseInt(brightness),
+      volume: parseInt(volume),
+    });
+  }
+
   function handleCharacteristicChange(event: {
     target: { value: AllowSharedBufferSource | undefined };
   }) {
-    const newValueReceived = new TextDecoder().decode(event.target.value);
-    console.log("Value: ", newValueReceived);
+    const received = new TextDecoder().decode(event.target.value);
+    console.log(received);
+    updateSettings(received);
   }
 
   function onDisconnected(event: { target: { device: { name: any } } }) {
     console.log("Device Disconnected:", event.target.device.name);
+    setIsBluetoothConnected(false);
     setupConnection().then(() => setIsBluetoothConnected(false));
   }
 
   async function disconnect() {
-    console.log("Disconnect Device.", characteristic_receive_found);
-    if (isBluetoothConnected && characteristic_receive_found) {
+    console.log("Disconnect Device.", characteristic_found);
+    if (isBluetoothConnected && characteristic_found) {
       try {
-        await characteristic_receive_found.stopNotifications();
+        await characteristic_found.stopNotifications();
         console.log("Notifications Stopped");
         if (bluetooth_server && bluetooth_server.connected) {
           const characteristic =
             await bluetooth_service_found.getCharacteristic(
-              characteristic_receive_UUID,
+              characteristic_uuid,
             );
           characteristic.removeEventListener(
             "characteristicvaluechanged",
@@ -127,10 +160,24 @@ const useBluetooth = (
     }
   }
 
+  async function sendMessage(message: string) {
+    try {
+      const encoder = new TextEncoder();
+      const value = encoder.encode(message);
+      characteristic_found.writeValue(value);
+      console.log(message);
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
+    }
+  }
+
   return {
     isBluetoothAvailable,
     setupConnection,
     disconnect,
+    sendMessage,
   };
 };
 

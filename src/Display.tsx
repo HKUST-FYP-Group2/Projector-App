@@ -9,6 +9,8 @@ import settings_default from "./data/settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
 
+import videoFile from "../public/2-2-4k.mp4"; // Import the video file
+
 interface DisplayProps {
   userStatus?: any;
   setUserStatus: (value: any) => void;
@@ -16,9 +18,10 @@ interface DisplayProps {
 
 function Display({ userStatus, setUserStatus }: DisplayProps) {
   const { loginStatus, handleLogout } = useAuth();
+  const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(true);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
   const [isClosingSettingsPanel, setIsClosingSettingsPanel] = useState(false);
   const [isBluetoothConnected, setIsBluetoothConnected] = useState(false);
@@ -27,7 +30,6 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
   const [isConfirmBluetoothWindowShown, setIsConfirmBluetoothWindowShown] =
     useState(false);
   let confirmDisconnect = false;
-  const [settings, setSettings] = useState(settings_default);
   const videoRef = useRef<HTMLDivElement>(null);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
@@ -74,11 +76,18 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
     setSnackbarOpen,
     setSnackbarMessage,
     setSnackbarSeverity,
+    settings,
+    setSettings,
   );
 
   //Bluetooth Settings
   async function handleBluetoothSettings() {
-    if (!isBluetoothAvailable()) return;
+    if (!isBluetoothAvailable()) {
+      setSnackbarOpen(true);
+      setSnackbarMessage("Bluetooth is not available on this device");
+      setSnackbarSeverity("error");
+      return;
+    }
     if (isBluetoothConnected) {
       if (confirmDisconnect) {
         await disconnect();
@@ -128,10 +137,9 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
         });
       }
       if (event.key === "b") {
-        console.log(userStatus);
-        setIsBluetoothConnected(
-          (prevIsBluetoothConnected) => !prevIsBluetoothConnected,
-        );
+        (async () => {
+          await handleBluetoothSettings();
+        })();
       }
     };
 
@@ -147,6 +155,23 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       className={`bg-blue w-screen h-screen text-white`}
       style={{ filter: `brightness(${settings.brightness}%)` }}
     >
+      {/*<div*/}
+      {/*  className={`absolute top-0 right-0 w-[100px] h-[100px] text-black z-50 opacity-100`}*/}
+      {/*>*/}
+      {/*  <textarea id="messageInput" className="w-full h-[70%]"></textarea>*/}
+      {/*  <button*/}
+      {/*    className="w-full h-[30%] bg-blue text-white"*/}
+      {/*    onClick={() => {*/}
+      {/*      const message = (*/}
+      {/*        document.getElementById("messageInput") as HTMLTextAreaElement*/}
+      {/*      ).value;*/}
+      {/*      sendMessage(message);*/}
+      {/*    }}*/}
+      {/*  >*/}
+      {/*    Send*/}
+      {/*  </button>*/}
+      {/*</div>*/}
+
       <div
         ref={videoRef}
         className={`w-full h-full absolute z-10 bg-blue ${isFadingOut ? "fade-in" : "fade-out"}`}
@@ -164,13 +189,14 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
       <div className={`w-full h-full absolute z-0 flex`}>
         {isPlaying && (
           <ReactPlayer
-            url="https://youtu.be/3c-rhqg4nuY?si=hLoVJSOIA22a6eEG"
-            className={`w-full h-full`}
+            url={"https://youtube.com/live/KyrUkpCcnQw?feature=share"}
+            className="react-player-cover"
             playing
             loop
             muted
             width="100%"
-            height="100%"
+            height="200%"
+            style={{ position: "absolute", top: 0, left: 0 }}
           />
         )}
         {!isPlaying && (
