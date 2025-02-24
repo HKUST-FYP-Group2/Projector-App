@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import Settings from "../data/settings.ts";
+import Settings from "./settings.ts";
 
 interface ClockProps {
   settings: Settings;

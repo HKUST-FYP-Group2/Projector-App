@@ -2,8 +2,8 @@ import Slider from "@mui/material/Slider";
 import Switch from "@mui/material/Switch";
 import Brightness2Icon from "@mui/icons-material/Brightness2";
 import BrightnessHighIcon from "@mui/icons-material/BrightnessHigh";
-import Settings from "../data/settings.ts";
-import defaultSettings from "../data/settings.json";
+import Settings from "./settings.ts";
+import defaultSettings from "../../settings.json";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 
 interface SettingsPanelRightProps {

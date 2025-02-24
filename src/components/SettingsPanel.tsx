@@ -10,7 +10,7 @@ import {
 import { useEffect, useMemo, useState } from "react";
 import LeftPanelItem from ".//SettingsPanelLeft.tsx";
 import RightPanelContent from ".//SettingsPanelRight.tsx";
-import Settings from "../data/settings.ts";
+import Settings from "./settings.ts";
 
 interface SettingsPanelProps {
   showSettingPanel: boolean;

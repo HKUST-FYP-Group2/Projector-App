@@ -3,7 +3,6 @@ import Display from "./Display.tsx";
 import Login from "./Login.tsx";
 import { useEffect, useState } from "react";
 import useAuth from "./components/useAuth.tsx";
-import Test from "./components/test.tsx";
 
 function App() {
   const { check_IsLoggedIn } = useAuth();
@@ -42,7 +41,6 @@ function App() {
         }
       />
       <Route path="/login" element={<Login />} />
-      <Route path="/test" element={<Test />} />
     </Routes>
   );
 }
