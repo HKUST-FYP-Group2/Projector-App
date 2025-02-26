@@ -5,6 +5,7 @@ import CircularProgress from "@mui/material/CircularProgress";
 import { QRCodeSVG } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "./components/useAuth.tsx";
+import { io } from "socket.io-client";
 
 function Login() {
   const navigate = useNavigate();
@@ -15,7 +16,7 @@ function Login() {
   const [loginSuccess, setLoginSuccess] = useState(false);
   const [deviceUUID, setDeviceUUID] = useState(null);
   const loginMainRef = useRef<HTMLDivElement>(null);
-  const { handleLogin, getDeviceUUID } = useAuth();
+  const { handleLogin, getDeviceUUID, handleQRLogin } = useAuth();
 
   useEffect(() => {
     const fetchDeviceUUID = async () => {
@@ -24,6 +25,22 @@ function Login() {
         setTimeout(fetchDeviceUUID, 3000);
       } else {
         setDeviceUUID(uuid);
+        //emit device uuid to server
+        const socket = io("http://localhost:8080");
+        socket.on("connect", () => {
+          socket.emit("QRLogin", { device_uuid: uuid });
+        });
+        socket.on("QRLogin", (data) => {
+          console.log(data);
+          if (data?.login_success === "true" && data?.token) {
+            handleQRLogin(data.token);
+            setLoginSuccess(true);
+            setIsFadingOut(true);
+            setTimeout(() => {
+              navigate("/");
+            }, 1000);
+          }
+        });
       }
     };
     (async () => {
