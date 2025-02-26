@@ -8,7 +8,7 @@ import {
   Settings as SettingsIcon,
 } from "@mui/icons-material";
 import { useState } from "react";
-import Settings from "../data/settings.ts";
+import Settings from "./settings.ts";
 
 interface SettingsBarProps {
   handleLogout: () => void;

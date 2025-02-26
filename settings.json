@@ -16,7 +16,7 @@
   },
   "volume": 50,
   "video": {
-    "show_video": true,
-    "video_url": "https://youtube.com/live/KhwqzOj_QTs?feature=share"
+    "show_video": false,
+    "video_url": ""
   }
 }

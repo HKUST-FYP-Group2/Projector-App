@@ -5,7 +5,7 @@ import Clock from "./components/Clock.tsx";
 import SettingsBar from "./components/SettingsBar.tsx";
 import SettingsPanel from "./components/SettingsPanel.tsx";
 import ConfirmWindow from "./components/ConfirmWindow.tsx";
-import settings_default from "./data/settings.json";
+import settings_default from "../settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
 

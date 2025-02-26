@@ -47,6 +47,7 @@ const useAuth = () => {
       console.log(res);
       if (res.status === 200) {
         setCookie("token", res.data.token, { path: "/" });
+
         return {
           login_success: true,
           error_message: "",
