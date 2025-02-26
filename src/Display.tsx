@@ -8,6 +8,7 @@ import ConfirmWindow from "./components/ConfirmWindow.tsx";
 import settings_default from "../settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
+import useWebSocket from "./components/useWebSocket.tsx";
 
 // import videoFile from "../public/2-2-4k.mp4";
 
@@ -37,8 +38,14 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
     "success",
   );
 
+  const { connectSocket } = useWebSocket({
+    settings,
+    setSettings,
+  });
+
   useEffect(() => {
     loginStatus().then((r) => setUserStatus(r));
+    connectSocket();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 

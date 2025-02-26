@@ -24,7 +24,7 @@ const useAuth = () => {
 
   async function loginStatus() {
     try {
-      const token = cookies.token; // Assuming you have access to cookies
+      const token = cookies.token;
       const res = await axios.get(`/api/status`, {
         timeout: 3000,
         headers: {
