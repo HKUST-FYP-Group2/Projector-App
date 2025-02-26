@@ -11,6 +11,7 @@ const useAuth = () => {
       navigate("/login");
     }
     const status = await loginStatus();
+    console.log(status);
     if (status.logged_in) {
       navigate("/");
       return status;
@@ -23,7 +24,13 @@ const useAuth = () => {
 
   async function loginStatus() {
     try {
-      const res = await axios.get(`/api/status`, { timeout: 3000 });
+      const token = cookies.token; // Assuming you have access to cookies
+      const res = await axios.get(`/api/status`, {
+        timeout: 3000,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
       return res.data;
     } catch (err) {
       console.log(err);
@@ -76,17 +83,31 @@ const useAuth = () => {
     }
   }
 
+  async function handleQRLogin(token: string) {
+    setCookie("token", token, { path: "/" });
+  }
+
   async function handleLogout() {
+    const token = cookies.token;
     try {
-      await axios.post(`/api/logout`).then(() => {
-        removeCookie("token");
-        navigate("/login");
-      });
+      await axios
+        .post(
+          `/api/logout`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        )
+        .then(() => {
+          removeCookie("token");
+          navigate("/login");
+        });
     } catch (err) {
       console.log(err);
-      navigate("/login");
+      // navigate("/login");
     }
-    //for admin admin test login
     return null;
   }
 
@@ -115,6 +136,7 @@ const useAuth = () => {
     handleLogout,
     loginStatus,
     getDeviceUUID,
+    handleQRLogin,
   };
 };
 
