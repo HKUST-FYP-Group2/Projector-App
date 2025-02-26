@@ -20,7 +20,9 @@ const useBluetooth = (
   const [characteristic_found, setCharacteristic_found] = useState<any>(null);
 
   useEffect(() => {
-    sendMessage(getMessageString()).then((r) => console.log(r));
+    if (isBluetoothConnected) {
+      sendMessage(getMessageString()).then((r) => console.log(r));
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
 
@@ -177,7 +179,6 @@ const useBluetooth = (
     isBluetoothAvailable,
     setupConnection,
     disconnect,
-    sendMessage,
   };
 };
 

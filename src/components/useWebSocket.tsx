@@ -1,43 +1,67 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import Settings from "./settings.ts";
+import { useCookies } from "react-cookie";
 
-const useWebSocket = () => {
-  const [isConnected, setIsConnected] = useState(false);
+interface WebSocketProps {
+  settings: Settings;
+  setSettings: (value: Settings) => void;
+}
+
+const useWebSocket = ({ settings, setSettings }: WebSocketProps) => {
+  const VITE_API_URL = import.meta.env.VITE_API_URL;
   const [socket, setSocket] = useState<Socket | null>(null);
-  const VITE_WS_ENDPOINT = "http://localhost:8080";
+  const [cookies] = useCookies(["token"]);
+  const [lastReceivedSettings, setLastReceivedSettings] =
+    useState<Settings | null>(null);
+
+  const connectSocket = () => {
+    const token = cookies.token;
+    const socket = io(VITE_API_URL, {
+      extraHeaders: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    setSocket(socket);
+
+    socket.on("connect", () => {
+      socket.emit("SyncSetting", { device_type: "Projector" });
+      console.log("ws connected");
+    });
+
+    socket.on("SyncSetting", (data) => {
+      if (data?.settings) {
+        console.log("Received settings", data.settings);
+        setLastReceivedSettings(data.settings);
+        setSettings(data.settings);
+      }
+    });
+
+    socket.on("disconnect", () => {
+      console.log("ws disconnected");
+    });
+  };
+
+  const sendSetting = useCallback(
+    (settings: Settings) => {
+      if (
+        socket &&
+        JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings)
+      ) {
+        socket.emit("SyncSetting", {
+          device_type: "Projector",
+          settings: settings,
+        });
+      }
+    },
+    [socket, lastReceivedSettings],
+  );
 
   useEffect(() => {
-    const newSocket = io(VITE_WS_ENDPOINT, {
-      transports: ["websocket"],
-      autoConnect: true,
-    });
+    sendSetting(settings);
+  }, [sendSetting, settings]);
 
-    newSocket.on("connect", () => {
-      setIsConnected(true);
-      console.log("WebSocket connected");
-    });
-
-    newSocket.on("disconnect", () => {
-      setIsConnected(false);
-      console.log("WebSocket disconnected");
-    });
-
-    setSocket(newSocket);
-
-    return () => {
-      newSocket.close();
-    };
-  }, []);
-
-  const message = (callback: (data: any) => void) => {
-    socket?.on("message", callback);
-  };
-
-  return {
-    socket,
-    isConnected,
-    message,
-  };
+  return { connectSocket, socket, sendSetting };
 };
 
 export default useWebSocket;

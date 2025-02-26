@@ -17,6 +17,7 @@ function Login() {
   const [deviceUUID, setDeviceUUID] = useState(null);
   const loginMainRef = useRef<HTMLDivElement>(null);
   const { handleLogin, getDeviceUUID, handleQRLogin } = useAuth();
+  const VITE_API_ENDPOINT = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchDeviceUUID = async () => {
@@ -26,7 +27,7 @@ function Login() {
       } else {
         setDeviceUUID(uuid);
         //emit device uuid to server
-        const socket = io("http://localhost:8080");
+        const socket = io(VITE_API_ENDPOINT);
         socket.on("connect", () => {
           socket.emit("QRLogin", { device_uuid: uuid });
         });
