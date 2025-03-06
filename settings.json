@@ -16,7 +16,7 @@
   },
   "volume": 50,
   "video": {
-    "show_video": false,
-    "video_url": ""
+    "show_video": true,
+    "video_url": "rtmp://143.89.130.216:1935/live"
   }
 }

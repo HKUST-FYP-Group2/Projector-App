@@ -193,10 +193,11 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
             url={settings.video.video_url}
             playing
             muted
-            // controls={true}
+            controls={true}
             width="100%"
-            height="200%"
+            height="100%"
             style={{ position: "absolute", top: 0, left: 0 }}
+            forceHLS={true}
           />
         )}
         {!settings.video.show_video && (

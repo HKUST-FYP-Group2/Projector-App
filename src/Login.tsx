@@ -27,6 +27,7 @@ function Login() {
       } else {
         setDeviceUUID(uuid);
         //emit device uuid to server
+        console.log(VITE_API_ENDPOINT);
         const socket = io(VITE_API_ENDPOINT);
         socket.on("connect", () => {
           socket.emit("QRLogin", { device_uuid: uuid });
