@@ -6,6 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 import { useNavigate } from "react-router-dom";
 import useAuth from "./components/useAuth.tsx";
 import { io } from "socket.io-client";
+import { useCookies } from "react-cookie";
 
 interface LoginProps {
   deviceUUID: any;
@@ -21,6 +22,8 @@ function Login({deviceUUID, setDeviceUUID}: LoginProps) {
   const [loginSuccess, setLoginSuccess] = useState(false);
   const loginMainRef = useRef<HTMLDivElement>(null);
   const { handleLogin, getDeviceUUID, handleQRLogin } = useAuth();
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [_, setCookie] = useCookies(["deviceUUID"]);
   const VITE_API_ENDPOINT = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
@@ -30,6 +33,8 @@ function Login({deviceUUID, setDeviceUUID}: LoginProps) {
         setTimeout(fetchDeviceUUID, 3000);
       } else {
         setDeviceUUID(uuid);
+        setCookie("deviceUUID", uuid);
+
         //emit device uuid to server
         console.log(VITE_API_ENDPOINT);
         const socket = io(VITE_API_ENDPOINT);

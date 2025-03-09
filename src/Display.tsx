@@ -9,6 +9,7 @@ import settings_default from "../settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
 import useWebSocket from "./components/useWebSocket.tsx";
+import { useCookies } from "react-cookie";
 
 interface DisplayProps {
   userStatus?: any;
@@ -18,7 +19,7 @@ interface DisplayProps {
 }
 
 function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: DisplayProps) {
-  const { loginStatus, handleLogout, getDeviceUUID } = useAuth();
+  const { loginStatus, handleLogout } = useAuth();
   const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -31,6 +32,7 @@ function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: Displ
     useState(false);
   let confirmDisconnect = false;
   const videoRef = useRef<HTMLDivElement>(null);
+  const [cookies] = useCookies(["deviceUUID"]);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -48,16 +50,8 @@ function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: Displ
     loginStatus().then((r) => setUserStatus(r));
     connectSocket();
     if(deviceUUID==null){
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const fetchDeviceUUID = async () => {
-        const uuid = await getDeviceUUID();
-        if (uuid === null) {
-          setTimeout(fetchDeviceUUID, 3000);
-        } else {
-          if (setDeviceUUID) {
-            setDeviceUUID(uuid);
-          }
-        }
+      if (setDeviceUUID) {
+        setDeviceUUID(cookies.deviceUUID);
       }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
