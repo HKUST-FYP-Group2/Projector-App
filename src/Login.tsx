@@ -7,14 +7,18 @@ import { useNavigate } from "react-router-dom";
 import useAuth from "./components/useAuth.tsx";
 import { io } from "socket.io-client";
 
-function Login() {
+interface LoginProps {
+  deviceUUID: any;
+  setDeviceUUID: (value: any) => void;
+}
+
+function Login({deviceUUID, setDeviceUUID}: LoginProps) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
-  const [deviceUUID, setDeviceUUID] = useState(null);
   const loginMainRef = useRef<HTMLDivElement>(null);
   const { handleLogin, getDeviceUUID, handleQRLogin } = useAuth();
   const VITE_API_ENDPOINT = import.meta.env.VITE_API_URL;

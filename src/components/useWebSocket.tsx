@@ -6,9 +6,10 @@ import { useCookies } from "react-cookie";
 interface WebSocketProps {
   settings: Settings;
   setSettings: (value: Settings) => void;
+  deviceUUID: any;
 }
 
-const useWebSocket = ({ settings, setSettings }: WebSocketProps) => {
+const useWebSocket = ({ settings, setSettings, deviceUUID }: WebSocketProps) => {
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const [socket, setSocket] = useState<Socket | null>(null);
   const [cookies] = useCookies(["token"]);
@@ -50,6 +51,7 @@ const useWebSocket = ({ settings, setSettings }: WebSocketProps) => {
       ) {
         socket.emit("SyncSetting", {
           device_type: "Projector",
+          device_uuid: deviceUUID,
           settings: settings,
         });
       }

@@ -15,9 +15,10 @@ import useWebSocket from "./components/useWebSocket.tsx";
 interface DisplayProps {
   userStatus?: any;
   setUserStatus: (value: any) => void;
+  deviceUUID?: any;
 }
 
-function Display({ userStatus, setUserStatus }: DisplayProps) {
+function Display({ userStatus, setUserStatus, deviceUUID }: DisplayProps) {
   const { loginStatus, handleLogout } = useAuth();
   const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -41,6 +42,7 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
   const { connectSocket } = useWebSocket({
     settings,
     setSettings,
+    deviceUUID
   });
 
   useEffect(() => {
@@ -189,16 +191,24 @@ function Display({ userStatus, setUserStatus }: DisplayProps) {
 
       <div className={`w-full h-full absolute z-0 flex`}>
         {settings.video.show_video && (
-          <ReactPlayer
-            url={settings.video.video_url}
-            playing
-            muted
-            controls={true}
-            width="100%"
-            height="100%"
-            style={{ position: "absolute", top: 0, left: 0 }}
-            forceHLS={true}
-          />
+            <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%' }}>
+              <ReactPlayer
+                  url={settings.video.video_url}
+                  playing
+                  muted
+                  controls={true}
+                  width="calc(100% + 10px)"  // Compensate for left crop
+                  height="200%"
+                  style={{
+                    position: "absolute",
+                    top: "-300px",
+                    left: "-10px",  // Crop left by 10px
+                    overflow: 'hidden'
+                  }}
+                  forceHLS={true}
+              />
+            </div>
+
         )}
         {!settings.video.show_video && (
           <img

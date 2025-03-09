@@ -17,6 +17,6 @@
   "volume": 50,
   "video": {
     "show_video": true,
-    "video_url": "rtmp://143.89.130.216:1935/live"
+    "video_url": "https://virtualwindow.cam/hls/index.m3u8"
   }
 }

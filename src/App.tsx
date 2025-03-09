@@ -7,6 +7,7 @@ import useAuth from "./components/useAuth.tsx";
 function App() {
   const { check_IsLoggedIn } = useAuth();
   const [userStatus, setUserStatus] = useState(null);
+  const [deviceUUID, setDeviceUUID] = useState(null);
 
   useEffect(() => {
     check_IsLoggedIn().then((r) => setUserStatus(r));
@@ -37,10 +38,10 @@ function App() {
       <Route
         path="/"
         element={
-          <Display userStatus={userStatus} setUserStatus={setUserStatus} />
+          <Display userStatus={userStatus} setUserStatus={setUserStatus} deviceUUID={deviceUUID}  />
         }
       />
-      <Route path="/login" element={<Login />} />
+      <Route path="/login" element={<Login deviceUUID={deviceUUID} setDeviceUUID={setDeviceUUID}/>} />
     </Routes>
   );
 }
