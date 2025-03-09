@@ -38,7 +38,7 @@ function App() {
       <Route
         path="/"
         element={
-          <Display userStatus={userStatus} setUserStatus={setUserStatus} deviceUUID={deviceUUID}  />
+          <Display userStatus={userStatus} setUserStatus={setUserStatus} deviceUUID={deviceUUID} setDeviceUUID={setDeviceUUID}  />
         }
       />
       <Route path="/login" element={<Login deviceUUID={deviceUUID} setDeviceUUID={setDeviceUUID}/>} />

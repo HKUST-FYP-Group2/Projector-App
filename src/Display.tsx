@@ -10,16 +10,15 @@ import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
 import useWebSocket from "./components/useWebSocket.tsx";
 
-// import videoFile from "../public/2-2-4k.mp4";
-
 interface DisplayProps {
   userStatus?: any;
   setUserStatus: (value: any) => void;
   deviceUUID?: any;
+  setDeviceUUID?: (value: any) => void;
 }
 
-function Display({ userStatus, setUserStatus, deviceUUID }: DisplayProps) {
-  const { loginStatus, handleLogout } = useAuth();
+function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: DisplayProps) {
+  const { loginStatus, handleLogout, getDeviceUUID } = useAuth();
   const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -48,6 +47,19 @@ function Display({ userStatus, setUserStatus, deviceUUID }: DisplayProps) {
   useEffect(() => {
     loginStatus().then((r) => setUserStatus(r));
     connectSocket();
+    if(deviceUUID==null){
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const fetchDeviceUUID = async () => {
+        const uuid = await getDeviceUUID();
+        if (uuid === null) {
+          setTimeout(fetchDeviceUUID, 3000);
+        } else {
+          if (setDeviceUUID) {
+            setDeviceUUID(uuid);
+          }
+        }
+      }
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
