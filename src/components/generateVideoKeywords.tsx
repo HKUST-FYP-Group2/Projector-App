@@ -21,7 +21,7 @@ const generateVideoKeywords = ({
   setSnackbarSeverity,
 }: GenerateVideoKeywordsProps): (() => Promise<void>) => {
   // Define the generator function that can be passed to searchForSoundsByKeywords
-  const generator = async () => {
+  return async () => {
     try {
       const player = playerRef.current;
       if (!player) return;
@@ -62,7 +62,7 @@ const generateVideoKeywords = ({
               if (content.includes("```")) {
                 // Extract just the JSON part from the markdown code block
                 const match = content.match(
-                  /```(?:json)?\s*(\{[\s\S]*?\})\s*```/,
+                  /```(?:json)?\s*(\{[\s\S]*?})\s*```/,
                 );
                 if (match && match[1]) {
                   jsonStr = match[1];
@@ -114,8 +114,6 @@ const generateVideoKeywords = ({
       console.error("Error capturing video frame:", error);
     }
   };
-
-  return generator;
 };
 
 const connectAPI = async (base64Image: string, existingKeywords: string[]) => {
@@ -133,7 +131,7 @@ const connectAPI = async (base64Image: string, existingKeywords: string[]) => {
         messages: [
           {
             role: "user",
-            temperature: 1,
+            temperature: 0.7,
             content: [
               {
                 type: "text",

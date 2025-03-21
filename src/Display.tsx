@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import useAuth from "./components/useAuth.tsx";
 import ReactPlayer from "react-player";
 import Clock from "./components/Clock.tsx";
@@ -46,7 +46,7 @@ function Display({
     "success",
   );
   const playerRef = useRef<ReactPlayer>(null);
-  let initBuffer = 0;
+  const [initBuffer, setInitBuffer] = useState(0);
   const videoKeywordsGenerator = generateVideoKeywords({
     playerRef,
     settings,
@@ -234,9 +234,8 @@ function Display({
     if (currentTime >= fadeOutStart) {
       const fadeOutDuration = 1.5;
       const fadeOutPosition = (currentTime - fadeOutStart) / fadeOutDuration;
-      const volume =
+      audioRef.current.volume =
         Math.max(0, 1 - fadeOutPosition) * (settings.sound.volume / 100);
-      audioRef.current.volume = volume;
     }
   };
 
@@ -360,9 +359,9 @@ function Display({
                 playsinline
                 onBuffer={() => console.log("Buffering...")}
                 onBufferEnd={() => {
-                  console.log("Buffering ended");
+                  console.log("Buffering ended", initBuffer);
                   if (initBuffer === 0) {
-                    initBuffer = 1;
+                    setInitBuffer(1);
                     videoKeywordsGenerator();
                   }
                 }}
