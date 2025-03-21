@@ -2,9 +2,11 @@ import Slider from "@mui/material/Slider";
 import Switch from "@mui/material/Switch";
 import Brightness2Icon from "@mui/icons-material/Brightness2";
 import BrightnessHighIcon from "@mui/icons-material/BrightnessHigh";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import Settings from "./settings.ts";
 import defaultSettings from "../../settings.json";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
+import searchForSoundsByKeywords from "./searchForSoundsByKeywords.tsx";
 
 interface SettingsPanelRightProps {
   selectedItem: string;
@@ -13,6 +15,7 @@ interface SettingsPanelRightProps {
   setSnackbarOpen: (value: boolean) => void;
   setSnackbarMessage: (value: string) => void;
   setSnackbarSeverity: (value: "success" | "error") => void;
+  videoKeywordsGenerator: () => Promise<void>;
 }
 
 const theme = createTheme({
@@ -30,6 +33,7 @@ const SettingsPanelRight = ({
   setSnackbarOpen,
   setSnackbarMessage,
   setSnackbarSeverity,
+  videoKeywordsGenerator,
 }: SettingsPanelRightProps) => {
   return (
     <ThemeProvider theme={theme}>
@@ -43,7 +47,7 @@ const SettingsPanelRight = ({
           {selectedItem === "Video" && (
             <div className={`w-full h-fit flex flex-col items-center`}>
               <div className={`settings-panel-switch-container`}>
-                <span className={`mt-[7px]`}>Show Video</span>
+                <span className={`mt-[7px]`}>Streaming</span>
                 <Switch
                   checked={settings.video.show_video}
                   onChange={(e) =>
@@ -63,7 +67,7 @@ const SettingsPanelRight = ({
                 className={`settings-panel-switch-container`}
                 style={{ display: "flex", alignItems: "center" }}
               >
-                <span>Video Url</span>
+                <span>Streaming URL</span>
                 <input
                   type="textarea"
                   value={settings.video.video_url}
@@ -113,9 +117,114 @@ const SettingsPanelRight = ({
                     max={100}
                     style={{ width: "100%" }}
                     color="primary"
+                    className={`mt-1.5`}
                   />
                 </div>
                 <BrightnessHighIcon />
+              </div>
+            </div>
+          )}
+          {selectedItem === "Sound" && (
+            <div className={`w-full h-fit flex flex-col items-center`}>
+              <div className={`settings-panel-switch-container`}>
+                <span className={`mt-[7px]`}>Original Streaming Sound</span>
+                <Switch
+                  checked={settings.sound.original_sound}
+                  onChange={(e) =>
+                    setSettings({
+                      ...settings,
+                      sound: {
+                        ...settings.sound,
+                        original_sound: e.target.checked,
+                      },
+                    })
+                  }
+                  color={`primary`}
+                  className={`mr-0 ml-auto`}
+                />
+              </div>
+              <div className={`settings-panel-switch-container`}>
+                <span className={`mt-[7px]`}>Volume</span>
+                <Slider
+                  value={settings.sound.volume}
+                  onChange={(_, value) =>
+                    setSettings({
+                      ...settings,
+                      sound: { ...settings.sound, volume: value as number },
+                    })
+                  }
+                  min={0}
+                  max={100}
+                  color={`primary`}
+                  style={{ width: "70%" }}
+                  className={`mr-3 ml-auto mt-1.5`}
+                />
+              </div>
+              {!settings.sound.original_sound && (
+                <>
+                  <div
+                    className={`settings-panel-switch-container`}
+                    style={{ display: "flex", alignItems: "center" }}
+                  >
+                    <span>Keywords: &nbsp;</span>
+                    <span>{settings.sound.keywords?.join(", ")}</span>
+                    <span
+                      className={`mr-0 ml-auto cursor-pointer text-gold hover:text-yellow`}
+                      onClick={() => videoKeywordsGenerator()}
+                    >
+                      <RefreshIcon />
+                    </span>
+                  </div>
+
+                  <div
+                    className={`bg-blue-3 px-3 py-2 rounded flex flex-col mt-2 w-[80%]`}
+                  >
+                    <span className="mb-1">Sound URL:</span>
+                    <div className="flex w-full">
+                      <span
+                        className={`break-all flex-1 hover:underline hover:text-yellow cursor-pointer`}
+                        style={{ wordBreak: "break-all" }}
+                        onClick={() => {
+                          if (settings.sound.sound_url) {
+                            window.open(settings.sound.sound_url, "_blank");
+                          }
+                        }}
+                      >
+                        {settings.sound.sound_url}
+                      </span>
+                      <span
+                        className={`flex-shrink-0 cursor-pointer text-gold hover:text-yellow ml-2`}
+                        onClick={() => {
+                          if (settings.sound.keywords != null) {
+                            searchForSoundsByKeywords(
+                              settings.sound.keywords,
+                              setSettings,
+                              settings,
+                              setSnackbarOpen,
+                              setSnackbarMessage,
+                              setSnackbarSeverity,
+                            );
+                          }
+                        }}
+                      >
+                        <RefreshIcon />
+                      </span>
+                    </div>
+                  </div>
+                </>
+              )}
+              <div
+                className={`settings-panel-switch-container cursor-pointer hover:bg-yellow`}
+                onClick={() =>
+                  setSettings({
+                    ...settings,
+                    sound: {
+                      ...defaultSettings.sound,
+                    },
+                  })
+                }
+              >
+                <span className={`mt-[7px]`}>Reset Default</span>
               </div>
             </div>
           )}
@@ -186,7 +295,7 @@ const SettingsPanelRight = ({
                   max={100}
                   color={`primary`}
                   style={{ width: "70%" }}
-                  className={`mr-3 ml-auto`}
+                  className={`mr-3 ml-auto mt-1.5`}
                 />
               </div>
               <div className={`settings-panel-switch-container`}>

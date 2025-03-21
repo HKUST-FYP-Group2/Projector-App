@@ -5,7 +5,6 @@ import {
   VolumeUp as VolumeUpIcon,
   Schedule as ScheduleIcon,
   Settings as SettingsIcon,
-  LogoutOutlined as LogoutOutlinedIcon,
 } from "@mui/icons-material";
 import { useEffect, useMemo, useState } from "react";
 import LeftPanelItem from ".//SettingsPanelLeft.tsx";
@@ -23,6 +22,7 @@ interface SettingsPanelProps {
   setSnackbarOpen: (value: boolean) => void;
   setSnackbarMessage: (value: string) => void;
   setSnackbarSeverity: (value: "success" | "error") => void;
+  videoKeywordsGenerator: () => Promise<void>;
 }
 
 const SettingsPanel = ({
@@ -36,6 +36,7 @@ const SettingsPanel = ({
   setSnackbarOpen,
   setSnackbarMessage,
   setSnackbarSeverity,
+  videoKeywordsGenerator,
 }: SettingsPanelProps) => {
   const [selectedItem, setSelectedItem] = useState<string>("Video");
 
@@ -43,10 +44,9 @@ const SettingsPanel = ({
     () => [
       { icon: VideoSettingsOutlinedIcon, label: "Video" },
       { icon: SettingsBrightnessIcon, label: "Brightness" },
-      { icon: VolumeUpIcon, label: "Volume" },
+      { icon: VolumeUpIcon, label: "Sound" },
       { icon: ScheduleIcon, label: "Clock" },
       { icon: SettingsIcon, label: "Settings Bar" },
-      { icon: LogoutOutlinedIcon, label: "Logout" },
     ],
     [],
   );
@@ -103,7 +103,7 @@ const SettingsPanel = ({
         <div
           className={`h-fit w-full bg-blue text-white p-[20px] flex ${isClosingSettingsPanel ? "fade-out-short" : "fade-in-short"}`}
         >
-          <div className={`h-full w-[30%] flex flex-col z-10`}>
+          <div className={`w-[30%] flex flex-col z-10`}>
             <div className={`w-full h-fit flex`}>
               <AccountCircleIcon
                 style={{ fontSize: "70px" }}
@@ -130,6 +130,7 @@ const SettingsPanel = ({
             setSnackbarOpen={setSnackbarOpen}
             setSnackbarMessage={setSnackbarMessage}
             setSnackbarSeverity={setSnackbarSeverity}
+            videoKeywordsGenerator={videoKeywordsGenerator}
           />
         </div>
       </div>

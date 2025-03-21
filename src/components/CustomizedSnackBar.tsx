@@ -43,7 +43,7 @@ const CustomizedSnackBar = ({
     <Snackbar
       open={snackbarOpen}
       onClose={handleSnackbarClose}
-      autoHideDuration={2000}
+      autoHideDuration={3000}
       TransitionComponent={snackbarTransition.Transition}
       anchorOrigin={{ vertical: "top", horizontal: "center" }}
     >

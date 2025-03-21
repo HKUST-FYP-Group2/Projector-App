@@ -13,7 +13,7 @@ interface LoginProps {
   setDeviceUUID: (value: any) => void;
 }
 
-function Login({deviceUUID, setDeviceUUID}: LoginProps) {
+function Login({ deviceUUID, setDeviceUUID }: LoginProps) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -206,7 +206,7 @@ function Login({deviceUUID, setDeviceUUID}: LoginProps) {
                     className={`items-center justify-center flex flex-col mt-[10px] `}
                   >
                     <div>
-                      {deviceUUID === null ? (
+                      {deviceUUID === null || deviceUUID === undefined ? (
                         <CircularProgress
                           size="7rem"
                           style={{ color: "#003366" }}

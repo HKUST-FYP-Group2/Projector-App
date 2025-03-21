@@ -9,6 +9,7 @@ import settings_default from "../settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
 import useWebSocket from "./components/useWebSocket.tsx";
+import generateVideoKeywords from "./components/generateVideoKeywords.tsx";
 import { useCookies } from "react-cookie";
 
 interface DisplayProps {
@@ -18,7 +19,12 @@ interface DisplayProps {
   setDeviceUUID?: (value: any) => void;
 }
 
-function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: DisplayProps) {
+function Display({
+  userStatus,
+  setUserStatus,
+  deviceUUID,
+  setDeviceUUID,
+}: DisplayProps) {
   const { loginStatus, handleLogout } = useAuth();
   const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -39,17 +45,27 @@ function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: Displ
   const [snackbarSeverity, setSnackbarSeverity] = useState<"success" | "error">(
     "success",
   );
+  const playerRef = useRef<ReactPlayer>(null);
+  let initBuffer = 0;
+  const videoKeywordsGenerator = generateVideoKeywords({
+    playerRef,
+    settings,
+    setSettings,
+    setSnackbarOpen,
+    setSnackbarMessage,
+    setSnackbarSeverity,
+  });
 
   const { connectSocket } = useWebSocket({
     settings,
     setSettings,
-    deviceUUID
+    deviceUUID,
   });
 
   useEffect(() => {
     loginStatus().then((r) => setUserStatus(r));
     connectSocket();
-    if(deviceUUID==null){
+    if (deviceUUID == null) {
       if (setDeviceUUID) {
         setDeviceUUID(cookies.deviceUUID);
       }
@@ -159,6 +175,112 @@ function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: Displ
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  //audio
+  const audioRef = useRef<HTMLAudioElement>(null);
+  // const audioContext = useRef<AudioContext | null>(null);
+  // const gainNode = useRef<GainNode | null>(null);
+  // const audioSource = useRef<MediaElementAudioSourceNode | null>(null);
+
+  // Replace your current audio implementation with this
+  useEffect(() => {
+    // Create a function to handle audio fading without Web Audio API
+    const setupAudioFade = () => {
+      if (!audioRef.current || !settings.sound.sound_url) return;
+
+      // Reset audio element
+      audioRef.current.volume = settings.sound.volume / 100;
+      audioRef.current.currentTime = 0;
+
+      // Set up listeners for fading
+      audioRef.current.addEventListener("timeupdate", handleSimpleFade);
+      audioRef.current.addEventListener("ended", handleSimpleLoop);
+
+      // Try to play
+      audioRef.current.play().catch((err) => {
+        console.error("Audio playback failed:", err);
+      });
+    };
+
+    // Clean up previous audio before setting up new one
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.removeEventListener("timeupdate", handleSimpleFade);
+      audioRef.current.removeEventListener("ended", handleSimpleLoop);
+    }
+
+    // Set up new audio when URL changes
+    if (settings.sound.sound_url) {
+      setupAudioFade();
+    }
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener("timeupdate", handleSimpleFade);
+        audioRef.current.removeEventListener("ended", handleSimpleLoop);
+      }
+    };
+  }, [settings.sound.sound_url]);
+
+  // Simpler fade implementations that don't use Web Audio API
+  const handleSimpleFade = () => {
+    if (!audioRef.current || settings.sound.original_sound) return;
+
+    const duration = audioRef.current.duration;
+    if (!isFinite(duration)) return; // Guard against NaN
+
+    const currentTime = audioRef.current.currentTime;
+    const fadeOutStart = duration - 1.5; // Start fade 1.5 seconds before end
+
+    if (currentTime >= fadeOutStart) {
+      const fadeOutDuration = 1.5;
+      const fadeOutPosition = (currentTime - fadeOutStart) / fadeOutDuration;
+      const volume =
+        Math.max(0, 1 - fadeOutPosition) * (settings.sound.volume / 100);
+      audioRef.current.volume = volume;
+    }
+  };
+
+  const handleSimpleLoop = () => {
+    if (!audioRef.current || settings.sound.original_sound) return;
+
+    // Reset to beginning
+    audioRef.current.currentTime = 0;
+
+    // Start with low volume
+    audioRef.current.volume = 0;
+
+    // Start playing
+    audioRef.current
+      .play()
+      .catch((err) => console.error("Audio loop failed:", err));
+
+    // Fade in manually using intervals
+    let volume = 0;
+    const targetVolume = settings.sound.volume / 100;
+    const fadeStep = targetVolume / 15; // 15 steps over ~1.5 seconds
+
+    const fadeInterval = setInterval(() => {
+      if (!audioRef.current) {
+        clearInterval(fadeInterval);
+        return;
+      }
+
+      volume = Math.min(targetVolume, volume + fadeStep);
+      audioRef.current.volume = volume;
+
+      if (volume >= targetVolume) {
+        clearInterval(fadeInterval);
+      }
+    }, 100);
+  };
+
+  // Update volume directly
+  useEffect(() => {
+    if (audioRef.current && !settings.sound.original_sound) {
+      audioRef.current.volume = settings.sound.volume / 100;
+    }
+  }, [settings.sound.volume, settings.sound.original_sound]);
+
   return (
     <div
       className={`bg-blue w-screen h-screen text-white`}
@@ -167,14 +289,13 @@ function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: Displ
       {/*<div*/}
       {/*  className={`absolute top-0 right-0 w-[100px] h-[100px] text-black z-50 opacity-100`}*/}
       {/*>*/}
-      {/*  <textarea id="messageInput" className="w-full h-[70%]"></textarea>*/}
+      {/*  <textarea id="messageInput" className="w-full h-[70%]">*/}
+      {/*    1231231231*/}
+      {/*  </textarea>*/}
       {/*  <button*/}
       {/*    className="w-full h-[30%] bg-blue text-white"*/}
       {/*    onClick={() => {*/}
-      {/*      const message = (*/}
-      {/*        document.getElementById("messageInput") as HTMLTextAreaElement*/}
-      {/*      ).value;*/}
-      {/*      sendMessage(message);*/}
+      {/*      console.log(settings.sound.original_sound);*/}
       {/*    }}*/}
       {/*  >*/}
       {/*    Send*/}
@@ -197,24 +318,63 @@ function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: Displ
 
       <div className={`w-full h-full absolute z-0 flex`}>
         {settings.video.show_video && (
-            <div style={{ position: 'relative', overflow: 'hidden', width: '100%', height: '100%' }}>
+          <>
+            <div
+              style={{
+                position: "relative",
+                overflow: "hidden",
+                width: "100%",
+                height: "100%",
+              }}
+            >
               <ReactPlayer
-                  url={settings.video.video_url}
-                  playing
-                  muted
-                  controls={true}
-                  width="calc(100% + 10px)"  // Compensate for left crop
-                  height="200%"
-                  style={{
-                    position: "absolute",
-                    top: "-300px",
-                    left: "-10px",  // Crop left by 10px
-                    overflow: 'hidden'
-                  }}
-                  forceHLS={true}
+                ref={playerRef}
+                url={settings.video.video_url}
+                playing
+                muted={!settings.sound.original_sound}
+                controls={true}
+                width="calc(100% + 10px)"
+                height="200%"
+                volume={settings.sound.volume / 100}
+                playbackRate={0.95}
+                style={{
+                  position: "absolute",
+                  top: "-50%",
+                  left: "-10px",
+                  overflow: "hidden",
+                }}
+                forceHLS={true}
+                config={{
+                  file: {
+                    forceHLS: true,
+                    hlsOptions: {
+                      maxBufferLength: 30,
+                      maxMaxBufferLength: 60,
+                      lowLatencyMode: false,
+                      backBufferLength: 30,
+                      startLevel: -1,
+                      debug: false,
+                    },
+                  },
+                }}
+                playsinline
+                onBuffer={() => console.log("Buffering...")}
+                onBufferEnd={() => {
+                  console.log("Buffering ended");
+                  if (initBuffer === 0) {
+                    initBuffer = 1;
+                    videoKeywordsGenerator();
+                  }
+                }}
               />
             </div>
-
+            <audio
+              ref={audioRef}
+              src={settings.sound.sound_url || undefined}
+              style={{ display: "none" }}
+              muted={settings.sound.original_sound}
+            />
+          </>
         )}
         {!settings.video.show_video && (
           <img
@@ -238,6 +398,7 @@ function Display({ userStatus, setUserStatus, deviceUUID, setDeviceUUID }: Displ
             setSnackbarOpen={setSnackbarOpen}
             setSnackbarMessage={setSnackbarMessage}
             setSnackbarSeverity={setSnackbarSeverity}
+            videoKeywordsGenerator={videoKeywordsGenerator}
           />
 
           <SettingsBar

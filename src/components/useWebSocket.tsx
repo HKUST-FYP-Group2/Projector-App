@@ -1,15 +1,19 @@
-import { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import Settings from "./settings.ts";
 import { useCookies } from "react-cookie";
 
 interface WebSocketProps {
   settings: Settings;
-  setSettings: (value: Settings) => void;
+  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
   deviceUUID: any;
 }
 
-const useWebSocket = ({ settings, setSettings, deviceUUID }: WebSocketProps) => {
+const useWebSocket = ({
+  settings,
+  setSettings,
+  deviceUUID,
+}: WebSocketProps) => {
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const [socket, setSocket] = useState<Socket | null>(null);
   const [cookies] = useCookies(["token"]);

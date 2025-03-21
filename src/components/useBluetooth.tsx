@@ -32,7 +32,7 @@ const useBluetooth = (
       settings.brightness.toString() +
       "|" +
       "volume-" +
-      settings.volume.toString()
+      settings.sound.volume.toString()
     );
   }
 
@@ -84,8 +84,9 @@ const useBluetooth = (
       );
       await characteristic.startNotifications();
       console.log("Notifications Started.");
-
-      await sendMessage(getMessageString());
+      setTimeout(async () => {
+        await sendMessage(getMessageString());
+      }, 2000);
     } catch (error) {
       console.log("Error:", error);
       setIsBluetoothConnected(false);
@@ -103,10 +104,12 @@ const useBluetooth = (
     setSettings({
       ...settings,
       brightness: parseInt(brightness),
-      volume: parseInt(volume),
+      sound: {
+        ...settings.sound,
+        volume: parseInt(volume),
+      },
     });
   }
-
   function handleCharacteristicChange(event: {
     target: { value: AllowSharedBufferSource | undefined };
   }) {

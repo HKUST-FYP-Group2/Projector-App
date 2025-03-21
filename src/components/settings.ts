@@ -14,7 +14,12 @@ interface Settings {
     hover_background_color: string;
     hover_icon_color: string;
   };
-  volume: number;
+  sound: {
+    volume: number;
+    original_sound: boolean;
+    keywords: string[];
+    sound_url: string;
+  };
   video: {
     show_video: boolean;
     video_url: string;

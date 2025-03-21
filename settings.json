@@ -14,7 +14,12 @@
     "hover_background_color": "#003366",
     "hover_icon_color": "#996600"
   },
-  "volume": 50,
+  "sound": {
+    "volume": 80,
+    "original_sound": false,
+    "keywords": [""],
+    "sound_url": ""
+  },
   "video": {
     "show_video": true,
     "video_url": "https://virtualwindow.cam/hls/index.m3u8"
