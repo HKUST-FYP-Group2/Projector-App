@@ -75,11 +75,16 @@ const useAuth = () => {
       if (axios.isAxiosError(err) && err.response) {
         return {
           login_success: false,
-          error_message: errorMessages[err.response.status] || "Not Found",
+          error_message:
+            errorMessages[err.response.status] ||
+            "Ask Ivan to turn on the server",
         };
       }
 
-      return { login_success: false, error_message: "Not Found" };
+      return {
+        login_success: false,
+        error_message: "Please connect to the HKUST VPN or use Eduroam Wifi.",
+      };
     }
   }
 

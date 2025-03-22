@@ -167,7 +167,11 @@ const SettingsPanelRight = ({
                     style={{ display: "flex", alignItems: "center" }}
                   >
                     <span>Keywords: &nbsp;</span>
-                    <span>{settings.sound.keywords?.join(", ")}</span>
+                    <span>
+                      {settings.sound.keywords?.length > 0
+                        ? settings.sound.keywords.slice(-2).join(", ")
+                        : "None"}
+                    </span>
                     <span
                       className={`mr-0 ml-auto cursor-pointer text-gold hover:text-yellow`}
                       onClick={() => videoKeywordsGenerator()}

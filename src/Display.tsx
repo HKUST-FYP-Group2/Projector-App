@@ -103,6 +103,7 @@ function Display({
     setSnackbarSeverity,
     settings,
     setSettings,
+    videoKeywordsGenerator,
   );
 
   //Bluetooth Settings
@@ -177,13 +178,8 @@ function Display({
 
   //audio
   const audioRef = useRef<HTMLAudioElement>(null);
-  // const audioContext = useRef<AudioContext | null>(null);
-  // const gainNode = useRef<GainNode | null>(null);
-  // const audioSource = useRef<MediaElementAudioSourceNode | null>(null);
-
-  // Replace your current audio implementation with this
   useEffect(() => {
-    // Create a function to handle audio fading without Web Audio API
+    // handle audio fading
     const setupAudioFade = () => {
       if (!audioRef.current || !settings.sound.sound_url) return;
 
@@ -216,9 +212,11 @@ function Display({
     return () => {
       if (audioRef.current) {
         audioRef.current.removeEventListener("timeupdate", handleSimpleFade);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         audioRef.current.removeEventListener("ended", handleSimpleLoop);
       }
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings.sound.sound_url]);
 
   // Simpler fade implementations that don't use Web Audio API

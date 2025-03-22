@@ -41,10 +41,7 @@ const generateVideoKeywords = ({
 
         const imageData = canvas.toDataURL("image/jpeg", 0.9);
         const base64Image = imageData.split(",")[1];
-
-        // Get existing keywords from settings
-        const existingKeywords = settings.sound.keywords || [];
-
+        let existingKeywords = settings.sound.keywords || [];
         // Get keywords from image analysis
         let found = false;
         let searchTimes = 0;
@@ -74,20 +71,20 @@ const generateVideoKeywords = ({
               console.log("Parsed keywords:", keywordsObj);
 
               if (keywordsObj && keywordsObj.keywords) {
-                setSnackbarMessage(
-                  "BGM Keywords: " + keywordsObj.keywords.join(", "),
-                );
-                setSnackbarSeverity("success");
-                setSnackbarOpen(true);
-
                 // Update settings with keywords
+                existingKeywords.push(...keywordsObj.keywords);
+                if (existingKeywords.length > 6) {
+                  existingKeywords = existingKeywords.slice(2);
+                }
+                console.log(existingKeywords);
                 setSettings({
                   ...settings,
                   sound: {
                     ...settings.sound,
-                    keywords: keywordsObj.keywords,
+                    keywords: existingKeywords,
                   },
                 });
+                console.log(settings.sound.keywords);
 
                 // Search for sounds using the keywords
                 const result = await searchForSoundsByKeywords(
@@ -117,7 +114,9 @@ const generateVideoKeywords = ({
 };
 
 const connectAPI = async (base64Image: string, existingKeywords: string[]) => {
-  console.log("Existing keywords:", existingKeywords);
+  if (existingKeywords.length < 0) {
+    return;
+  }
   const response = await fetch(
     "https://dashscope.aliyuncs.com/compatible-mode/v1/chat/completions",
     {
@@ -131,7 +130,7 @@ const connectAPI = async (base64Image: string, existingKeywords: string[]) => {
         messages: [
           {
             role: "user",
-            temperature: 0.7,
+            temperature: 0.9,
             content: [
               {
                 type: "text",

@@ -9,10 +9,11 @@ const useBluetooth = (
   setSnackbarSeverity: (value: "success" | "error") => void,
   settings: Settings,
   setSettings: (value: Settings) => void,
+  videoKeywordsGenerator: () => Promise<void>,
 ) => {
   const device_name = "Virtual_Window_Control";
-  const bluetooth_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
-  const characteristic_uuid = "19b10001-e8f2-537e-4f6c-d104768a1214";
+  const bluetooth_UUID = "419d7afd-9d84-4387-bdd6-54428c9aabbb";
+  const characteristic_uuid = "0f2441e6-7094-4561-b9c3-59f3690eb052";
 
   const [bluetooth_server, setBluetoothServer] = useState<any>(null);
   const [bluetooth_service_found, setBluetoothServiceFound] =
@@ -100,7 +101,6 @@ const useBluetooth = (
     const [brightnessPart, volumePart] = received.split("|");
     const brightness = brightnessPart.split("-")[1];
     const volume = volumePart.split("-")[1];
-    console.log(brightness, volume);
     setSettings({
       ...settings,
       brightness: parseInt(brightness),
@@ -115,7 +115,11 @@ const useBluetooth = (
   }) {
     const received = new TextDecoder().decode(event.target.value);
     console.log(received);
-    updateSettings(received);
+    if (received === "bgm") {
+      videoKeywordsGenerator();
+    } else {
+      updateSettings(received);
+    }
   }
 
   function onDisconnected(event: { target: { device: { name: any } } }) {
@@ -170,7 +174,6 @@ const useBluetooth = (
       const encoder = new TextEncoder();
       const value = encoder.encode(message);
       characteristic_found.writeValue(value);
-      console.log(message);
       return true;
     } catch (error) {
       console.log(error);

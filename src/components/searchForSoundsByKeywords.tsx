@@ -79,7 +79,6 @@ const searchForSoundsByKeywords = async (
         ...settings,
         sound: {
           ...settings.sound,
-          keywords: keywords,
           sound_url: soundUrl,
         },
       });
