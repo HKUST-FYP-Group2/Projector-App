@@ -52,6 +52,7 @@ const useWebSocket = ({
       }
       if (data.device_type === "Projector") {
         if (data.settings) {
+          console.log(settings);
           setLastReceivedSettings(data.settings);
           setSettings(data.settings);
         }
@@ -84,11 +85,22 @@ const useWebSocket = ({
     [socket, lastReceivedSettings, cookies, deviceUUID],
   );
 
+  const sendLogout = () => {
+    if (socket) {
+      socket.emit("SyncSetting", {
+        user_id: cookies["user_id"],
+        device_type: "Projector",
+        device_uuid: deviceUUID || cookies["deviceUUID"],
+        msg: "Logout",
+      });
+    }
+  };
+
   useEffect(() => {
     sendSetting(settings);
   }, [sendSetting, settings]);
 
-  return { connectSocket, socket, sendSetting };
+  return { connectSocket, socket, sendSetting, sendLogout };
 };
 
 export default useWebSocket;

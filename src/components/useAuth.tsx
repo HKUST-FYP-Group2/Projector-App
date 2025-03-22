@@ -149,7 +149,6 @@ const useAuth = () => {
     checkIsLoggedIn,
     handleLogin,
     handleLogout,
-    loginStatus,
     getDeviceUUID,
     handleQRLogin,
   };

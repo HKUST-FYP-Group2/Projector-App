@@ -56,7 +56,7 @@ function Display({
     setSnackbarSeverity,
   });
 
-  const { connectSocket } = useWebSocket({
+  const { connectSocket, sendLogout } = useWebSocket({
     settings,
     setSettings,
     deviceUUID,
@@ -129,7 +129,7 @@ function Display({
   //logout function
   const logoutFromDisplay = () => {
     setIsFadingOut(true);
-
+    sendLogout();
     if (isBluetoothConnected) {
       confirmDisconnect = true;
       (async () => {
