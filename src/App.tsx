@@ -5,12 +5,12 @@ import { useEffect, useState } from "react";
 import useAuth from "./components/useAuth.tsx";
 
 function App() {
-  const { check_IsLoggedIn } = useAuth();
+  const { checkIsLoggedIn } = useAuth();
   const [userStatus, setUserStatus] = useState(null);
   const [deviceUUID, setDeviceUUID] = useState(null);
 
   useEffect(() => {
-    check_IsLoggedIn().then((r) => setUserStatus(r));
+    checkIsLoggedIn().then((r) => setUserStatus(r));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -38,10 +38,20 @@ function App() {
       <Route
         path="/"
         element={
-          <Display userStatus={userStatus} setUserStatus={setUserStatus} deviceUUID={deviceUUID} setDeviceUUID={setDeviceUUID}  />
+          <Display
+            userStatus={userStatus}
+            setUserStatus={setUserStatus}
+            deviceUUID={deviceUUID}
+            setDeviceUUID={setDeviceUUID}
+          />
         }
       />
-      <Route path="/login" element={<Login deviceUUID={deviceUUID} setDeviceUUID={setDeviceUUID}/>} />
+      <Route
+        path="/login"
+        element={
+          <Login deviceUUID={deviceUUID} setDeviceUUID={setDeviceUUID} />
+        }
+      />
     </Routes>
   );
 }

@@ -25,7 +25,7 @@ function Display({
   deviceUUID,
   setDeviceUUID,
 }: DisplayProps) {
-  const { loginStatus, handleLogout } = useAuth();
+  const { handleLogout, checkIsLoggedIn } = useAuth();
   const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -63,7 +63,7 @@ function Display({
   });
 
   useEffect(() => {
-    loginStatus().then((r) => setUserStatus(r));
+    checkIsLoggedIn().then((r) => setUserStatus(r));
     connectSocket();
     if (deviceUUID == null) {
       if (setDeviceUUID) {
@@ -360,7 +360,7 @@ function Display({
                   console.log("Buffering ended", initBuffer);
                   if (initBuffer === 0) {
                     setInitBuffer(1);
-                    videoKeywordsGenerator();
+                    videoKeywordsGenerator().then((r) => console.log(r));
                   }
                 }}
               />

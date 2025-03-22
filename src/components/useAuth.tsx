@@ -4,7 +4,11 @@ import { useCookies } from "react-cookie";
 
 const useAuth = () => {
   const navigate = useNavigate();
-  const [cookies, setCookie, removeCookie] = useCookies(["token"]);
+  const [cookies, setCookie, removeCookie] = useCookies([
+    "token",
+    "user_id",
+    "username",
+  ]);
 
   async function checkIsLoggedIn() {
     if (!cookies.token) {
@@ -14,6 +18,10 @@ const useAuth = () => {
     console.log(status);
     if (status.logged_in) {
       navigate("/");
+      //save user_id and username to cookies
+      console.log(status);
+      setCookie("user_id", status.user_id, { path: "/" });
+      setCookie("username", status.username, { path: "/" });
       return status;
     } else if (status === false || status.logged_in === false) {
       navigate("/login");
@@ -107,6 +115,8 @@ const useAuth = () => {
         )
         .then(() => {
           removeCookie("token");
+          removeCookie("user_id");
+          removeCookie("username");
           navigate("/login");
         });
     } catch (err) {
@@ -136,7 +146,7 @@ const useAuth = () => {
   }
 
   return {
-    check_IsLoggedIn: checkIsLoggedIn,
+    checkIsLoggedIn,
     handleLogin,
     handleLogout,
     loginStatus,

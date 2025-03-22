@@ -16,7 +16,7 @@ const useWebSocket = ({
 }: WebSocketProps) => {
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const [socket, setSocket] = useState<Socket | null>(null);
-  const [cookies] = useCookies(["token"]);
+  const [cookies] = useCookies(["token", "user_id", "deviceUUID"]);
   const [lastReceivedSettings, setLastReceivedSettings] =
     useState<Settings | null>(null);
 
@@ -30,15 +30,31 @@ const useWebSocket = ({
     setSocket(socket);
 
     socket.on("connect", () => {
-      socket.emit("SyncSetting", { device_type: "Projector" });
+      socket.emit("SyncSetting", {
+        device_type: "Projector",
+        msg: "connecting to the server",
+      });
       console.log("ws connected");
     });
 
     socket.on("SyncSetting", (data) => {
-      if (data?.settings) {
-        console.log("Received settings", data.settings);
-        setLastReceivedSettings(data.settings);
-        setSettings(data.settings);
+      console.log("ws", data);
+      if (data === null || data.user_id !== cookies["user_id"]) {
+        return;
+      }
+      if (data.device_type === "Control") {
+        if (data.msg === "GetSetting") {
+          sendSetting(settings);
+        }
+        if (data.msg === "SetSetting") {
+          setSettings(data.settings);
+        }
+      }
+      if (data.device_type === "Projector") {
+        if (data.settings) {
+          setLastReceivedSettings(data.settings);
+          setSettings(data.settings);
+        }
       }
     });
 
@@ -49,18 +65,23 @@ const useWebSocket = ({
 
   const sendSetting = useCallback(
     (settings: Settings) => {
+      console.log("Send settings check:", cookies["user_id"], deviceUUID);
       if (
         socket &&
-        JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings)
+        JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings) &&
+        cookies["user_id"] &&
+        deviceUUID
       ) {
         socket.emit("SyncSetting", {
+          user_id: cookies["user_id"],
           device_type: "Projector",
-          device_uuid: deviceUUID,
+          device_uuid: deviceUUID || cookies["deviceUUID"],
+          msg: "UpdateProjectorAppSetting",
           settings: settings,
         });
       }
     },
-    [socket, lastReceivedSettings],
+    [socket, lastReceivedSettings, cookies, deviceUUID],
   );
 
   useEffect(() => {

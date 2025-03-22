@@ -24,11 +24,8 @@ const ConfirmWindow = ({
       <div
         className={`bg-blue p-4 ${fadingout ? `fade-out-short` : `fade-in-short `} rounded-[20px] shadow-lg bg-opacity-90 py-[25px] px-[30px] select-none text-lg font-semibold max-w-[350px]`}
         ref={divRef}
-        onAnimationStart={() => {
-          console.log("start");
-        }}
+        onAnimationStart={() => {}}
         onAnimationEnd={() => {
-          console.log("cancel1", divRef.current, fadingout);
           if (fadingout && divRef.current !== null) {
             divRef.current.style.visibility = "hidden";
             if (isConfirm) {
