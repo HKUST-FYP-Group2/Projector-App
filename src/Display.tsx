@@ -329,7 +329,7 @@ function Display({
                 url={settings.video.video_url}
                 playing
                 muted={!settings.sound.original_sound}
-                controls={true}
+                controls={false}
                 width="calc(100% + 10px)"
                 height="200%"
                 volume={settings.sound.volume / 100}
@@ -340,10 +340,10 @@ function Display({
                   left: "-10px",
                   overflow: "hidden",
                 }}
-                forceHLS={true}
+                forceHLS={false}
                 config={{
                   file: {
-                    forceHLS: true,
+                    forceHLS: false,
                     hlsOptions: {
                       maxBufferLength: 30,
                       maxMaxBufferLength: 60,
