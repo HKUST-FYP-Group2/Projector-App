@@ -330,13 +330,14 @@ function Display({
                 playing
                 muted={!settings.sound.original_sound}
                 controls={false}
-                width="calc(100% + 10px)"
-                height="200%"
+                // width="calc(100% + 10px)"
+                height="100%"
+                width="100%"
                 volume={settings.sound.volume / 100}
-                playbackRate={0.95}
+                playbackRate={1}
                 style={{
                   position: "absolute",
-                  top: "-50%",
+                  // top: "-50%",
                   left: "-10px",
                   overflow: "hidden",
                 }}
