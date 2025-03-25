@@ -21,7 +21,7 @@
     "sound_url": ""
   },
   "video": {
-    "show_video": true,
+    "show_video": false,
     "video_url": "https://virtualwindow.cam/hls/index.m3u8"
   }
 }

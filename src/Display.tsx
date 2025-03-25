@@ -1,22 +1,24 @@
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import useAuth from "./components/useAuth.tsx";
 import ReactPlayer from "react-player";
 import Clock from "./components/Clock.tsx";
 import SettingsBar from "./components/SettingsBar.tsx";
 import SettingsPanel from "./components/SettingsPanel.tsx";
 import ConfirmWindow from "./components/ConfirmWindow.tsx";
-import settings_default from "../settings.json";
 import useBluetooth from "./components/useBluetooth.tsx";
 import CustomizedSnackBar from "./components/CustomizedSnackBar.tsx";
 import useWebSocket from "./components/useWebSocket.tsx";
 import generateVideoKeywords from "./components/generateVideoKeywords.tsx";
 import { useCookies } from "react-cookie";
+import Settings from "./components/settings.ts";
 
 interface DisplayProps {
   userStatus?: any;
   setUserStatus: (value: any) => void;
   deviceUUID?: any;
   setDeviceUUID?: (value: any) => void;
+  settings: Settings;
+  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
 }
 
 function Display({
@@ -24,9 +26,17 @@ function Display({
   setUserStatus,
   deviceUUID,
   setDeviceUUID,
+  settings,
+  setSettings,
 }: DisplayProps) {
-  const { handleLogout, checkIsLoggedIn, getDeviceUUID, postUserSettings, getUserSettings } = useAuth();
-  const [settings, setSettings] = useState(settings_default);
+  const {
+    handleLogout,
+    checkIsLoggedIn,
+    getDeviceUUID,
+    putUserSettings,
+    getUserSettings,
+  } = useAuth();
+
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [showSettingPanel, setShowSettingPanel] = useState(false);
@@ -66,17 +76,26 @@ function Display({
     //save user status and device uuid in cookie
     checkIsLoggedIn().then((r) => setUserStatus(r));
     if (!deviceUUID && setDeviceUUID) {
-      if(!cookies.deviceUUID){
+      if (!cookies.deviceUUID) {
         const uuid = getDeviceUUID();
         setCookie("deviceUUID", uuid, { path: "/" });
         setDeviceUUID(uuid);
-      }else{
+      } else {
         setDeviceUUID(cookies.deviceUUID);
       }
     }
 
     getUserSettings().then((res) => {
-      console.log(res);
+      console.log("userStatus", res);
+      if (!res || res.status === 400) {
+        putUserSettings(settings).then((res) => {
+          console.log("putUserSettings", res);
+        });
+      } else {
+        if (res.data.settings) {
+          setSettings(res.data.settings);
+        }
+      }
     });
 
     //socket
@@ -93,6 +112,16 @@ function Display({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  // Save settings to server
+  useEffect(() => {
+    if (isClosingSettingsPanel) {
+      putUserSettings(settings).then((res) => {
+        console.log("putUserSettings", res);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isClosingSettingsPanel]);
 
   // Fullscreen function
   function handleFullScreen() {
@@ -184,6 +213,10 @@ function Display({
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(() => {
+    setInitBuffer(0);
+  }, [settings.video.video_url]);
 
   //audio
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -306,6 +339,16 @@ function Display({
         }}
       ></div>
 
+      {/*//test button*/}
+      {/*<button*/}
+      {/*  onClick={() => {*/}
+      {/*    getUserSettings();*/}
+      {/*  }}*/}
+      {/*  className={`bg-red-500 text-white p-2 rounded absolute top-0 right-0 m-2 z-50`}*/}
+      {/*>*/}
+      {/*  Save*/}
+      {/*</button>*/}
+
       <div className={`w-full h-full absolute z-0 flex`}>
         {settings.video.show_video && (
           <>
@@ -318,53 +361,58 @@ function Display({
               }}
             >
               <ReactPlayer
-                  ref={playerRef}
-                  url={settings.video.video_url}
-                  playing
-                  loop={true}
-                  muted={!settings.sound.original_sound}
-                  controls={false}
-                  height="100%"
-                  width="100%"
-                  volume={settings.sound.volume / 100}
-                  playbackRate={1}
-                  config={{
-                    file: {
-                      attributes: {
-                        style: {
-                          width: "100%",
-                          height: "100%",
-                          objectFit: "cover"
-                        }
-                      },
-                      hlsOptions: {
-                        maxBufferLength: 30,
-                        maxMaxBufferLength: 60,
-                        lowLatencyMode: false,
-                        backBufferLength: 30,
-                        startLevel: -1,
-                        debug: false,
+                ref={playerRef}
+                url={settings.video.video_url}
+                playing
+                loop={true}
+                muted={!settings.sound.original_sound}
+                controls={false}
+                height="100%"
+                width="100%"
+                volume={settings.sound.volume / 100}
+                playbackRate={1}
+                config={{
+                  file: {
+                    attributes: {
+                      crossOrigin: "anonymous",
+                      style: {
+                        width: "100%",
+                        height: "100%",
+                        objectFit: "cover",
                       },
                     },
-                  }}
-                  onBuffer={() => console.log("Buffering...")}
-                  onBufferEnd={() => {
-                    console.log("Buffering ended", initBuffer);
-                    if (initBuffer === 0) {
-                      setInitBuffer(1);
-                      videoKeywordsGenerator().then((r) => console.log(r));
-                    }
-                  }}
-                  onError={(error) => {
-                    console.log("Video loading error:", error);
-                    setSettings(prev => ({
-                      ...prev,
-                      video: {
-                        ...prev.video,
-                        video_url: "https://virtualwindow.cam/recordings/rainy.mp4"
-                      }
-                    }));
-                  }}
+                    hlsOptions: {
+                      maxBufferLength: 30,
+                      maxMaxBufferLength: 60,
+                      lowLatencyMode: false,
+                      backBufferLength: 30,
+                      startLevel: -1,
+                      debug: false,
+                    },
+                  },
+                }}
+                onBuffer={() => console.log("Buffering...")}
+                onBufferEnd={() => {
+                  console.log("Buffering ended", initBuffer);
+                  if (initBuffer === 0) {
+                    setInitBuffer(1);
+                    videoKeywordsGenerator().then((r) => console.log(r));
+                  }
+                }}
+                onError={(error) => {
+                  console.log("Video loading error:", error);
+                  setSettings(
+                    (prev: Settings) =>
+                      ({
+                        ...prev,
+                        video: {
+                          ...prev.video,
+                          video_url:
+                            "https://virtualwindow.cam/recordings/rainy.mp4",
+                        },
+                      }) as Settings,
+                  );
+                }}
               />
             </div>
             <audio
@@ -383,7 +431,6 @@ function Display({
           />
         )}
       </div>
-
       {!isFadingOut && (
         <>
           <SettingsPanel

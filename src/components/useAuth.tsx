@@ -15,11 +15,9 @@ const useAuth = () => {
       navigate("/login");
     }
     const status = await loginStatus();
-    console.log(status);
     if (status.logged_in) {
       navigate("/");
       //save user_id and username to cookies
-      console.log(status);
       setCookie("user_id", status.user_id, { path: "/" });
       setCookie("username", status.username, { path: "/" });
       return status;
@@ -146,41 +144,45 @@ const useAuth = () => {
   }
 
   //post user settings
-  async function postUserSettings(settings: any) {
-      const token = cookies.token;
-      try {
-      await axios.post(
-          `/api/users/${cookies.user_id}/pjt`,
-          {
-          settings: settings,
-          },
-          {
+  async function putUserSettings(settings: any) {
+    const token = cookies.token;
+    const userId = cookies.user_id;
+    try {
+      return await axios.put(
+        `/api/users/${userId}/pjt`,
+        {
+          projector_app_setting: settings,
+        },
+        {
           headers: {
-              Authorization: `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
-          },
+        },
       );
-      } catch (err) {
+    } catch (err) {
       console.log(err);
-      }
+    }
   }
 
   //get user settings
   async function getUserSettings() {
-      const token = cookies.token;
-      console.log(token)
-      try {
-      const res = await axios.get(`/api/users/${cookies.user_id}/pjt`, {
-          headers: {
-          Authorization: `Bearer ${token}`,
-          },
-      });
-        console.log(res);
-      return res;
-      } catch (err) {
-      console.log(err);
+    const token = cookies.token;
+    const userId = cookies.user_id;
+
+    if (!userId || !token) {
       return null;
-      }
+    }
+
+    try {
+      return await axios.get(`/api/users/${userId}/pjt`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } catch (err) {
+      console.log("Error fetching user settings:", err);
+      return null;
+    }
   }
 
   return {
@@ -189,7 +191,7 @@ const useAuth = () => {
     handleLogout,
     getDeviceUUID,
     handleQRLogin,
-    postUserSettings,
+    putUserSettings,
     getUserSettings,
   };
 };

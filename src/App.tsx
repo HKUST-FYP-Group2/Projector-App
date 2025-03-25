@@ -3,11 +3,13 @@ import Display from "./Display.tsx";
 import Login from "./Login.tsx";
 import { useEffect, useState } from "react";
 import useAuth from "./components/useAuth.tsx";
+import settings_default from "../settings.json";
 
 function App() {
   const { checkIsLoggedIn } = useAuth();
   const [userStatus, setUserStatus] = useState(null);
   const [deviceUUID, setDeviceUUID] = useState(null);
+  const [settings, setSettings] = useState(settings_default);
 
   useEffect(() => {
     checkIsLoggedIn().then((r) => setUserStatus(r));
@@ -43,6 +45,8 @@ function App() {
             setUserStatus={setUserStatus}
             deviceUUID={deviceUUID}
             setDeviceUUID={setDeviceUUID}
+            settings={settings}
+            setSettings={setSettings}
           />
         }
       />

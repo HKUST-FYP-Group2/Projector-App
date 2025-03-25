@@ -1,11 +1,12 @@
-import React, { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
 import Settings from "./settings.ts";
 import { useCookies } from "react-cookie";
+import { debounce } from "lodash";
 
 interface WebSocketProps {
   settings: Settings;
-  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
+  setSettings: (value: Settings) => void;
   deviceUUID: any;
 }
 
@@ -52,7 +53,6 @@ const useWebSocket = ({
       }
       if (data.device_type === "Projector") {
         if (data.settings) {
-          console.log(settings);
           setLastReceivedSettings(data.settings);
           setSettings(data.settings);
         }
@@ -66,7 +66,6 @@ const useWebSocket = ({
 
   const sendSetting = useCallback(
     (settings: Settings) => {
-      console.log("Send settings check:", cookies["user_id"], cookies["deviceUUID"]);
       if (
         socket &&
         JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings) &&
@@ -96,9 +95,39 @@ const useWebSocket = ({
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSendSetting = useCallback(
+    debounce((settingsToSend: Settings) => {
+      if (
+        socket &&
+        JSON.stringify(settingsToSend) !==
+          JSON.stringify(lastReceivedSettings) &&
+        cookies["user_id"] &&
+        cookies["deviceUUID"]
+      ) {
+        socket.emit("SyncSetting", {
+          user_id: cookies["user_id"],
+          device_type: "Projector",
+          device_uuid: deviceUUID || cookies["deviceUUID"],
+          msg: "UpdateProjectorAppSetting",
+          settings: settingsToSend,
+        });
+      }
+    }, 500), // 500ms delay - adjust as needed
+    [socket, lastReceivedSettings, cookies, deviceUUID],
+  );
+
   useEffect(() => {
-    sendSetting(settings);
-  }, [sendSetting, settings]);
+    // Only send if settings actually changed
+    if (JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings)) {
+      debouncedSendSetting(settings);
+    }
+
+    // Cleanup function to cancel pending debounced calls
+    return () => {
+      debouncedSendSetting.cancel();
+    };
+  }, [settings, debouncedSendSetting, lastReceivedSettings]);
 
   return { connectSocket, socket, sendSetting, sendLogout };
 };

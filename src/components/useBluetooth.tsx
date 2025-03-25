@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Settings from "./settings.ts";
+import { debounce } from "lodash";
 
 const useBluetooth = (
   isBluetoothConnected: boolean,
@@ -20,12 +21,52 @@ const useBluetooth = (
     useState<any>(null);
   const [characteristic_found, setCharacteristic_found] = useState<any>(null);
 
-  useEffect(() => {
-    if (isBluetoothConnected) {
-      sendMessage(getMessageString()).then((r) => console.log(r));
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSendMessage = useCallback(
+    debounce(async (message: string) => {
+      try {
+        if (characteristic_found) {
+          const encoder = new TextEncoder();
+          const value = encoder.encode(message);
+          await characteristic_found.writeValue(value);
+          return true;
+        }
+        return false;
+      } catch (error) {
+        console.log("Error sending message:", error);
+        return false;
+      }
+    }, 500), // 500ms delay
+    [characteristic_found],
+  );
+
+  async function sendMessage(message: string) {
+    try {
+      const encoder = new TextEncoder();
+      const value = encoder.encode(message);
+      characteristic_found.writeValue(value);
+      return true;
+    } catch (error) {
+      console.log(error);
+      return false;
     }
+  }
+
+  useEffect(() => {
+    if (isBluetoothConnected && characteristic_found) {
+      const msg = getMessageString();
+      if (msg) {
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-expect-error
+        debouncedSendMessage(msg).then((r) => console.log(r));
+      }
+    }
+
+    return () => {
+      debouncedSendMessage.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings]);
+  }, [settings, isBluetoothConnected, debouncedSendMessage]);
 
   function getMessageString() {
     return (
@@ -166,18 +207,6 @@ const useBluetooth = (
       setSnackbarMessage("Bluetooth is not connected");
       setSnackbarSeverity("error");
       setSnackbarOpen(true);
-    }
-  }
-
-  async function sendMessage(message: string) {
-    try {
-      const encoder = new TextEncoder();
-      const value = encoder.encode(message);
-      characteristic_found.writeValue(value);
-      return true;
-    } catch (error) {
-      console.log(error);
-      return false;
     }
   }
 
