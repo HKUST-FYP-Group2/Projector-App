@@ -66,12 +66,12 @@ const useWebSocket = ({
 
   const sendSetting = useCallback(
     (settings: Settings) => {
-      console.log("Send settings check:", cookies["user_id"], deviceUUID);
+      console.log("Send settings check:", cookies["user_id"], cookies["deviceUUID"]);
       if (
         socket &&
         JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings) &&
         cookies["user_id"] &&
-        deviceUUID
+        cookies["deviceUUID"]
       ) {
         socket.emit("SyncSetting", {
           user_id: cookies["user_id"],

@@ -25,7 +25,7 @@ function Display({
   deviceUUID,
   setDeviceUUID,
 }: DisplayProps) {
-  const { handleLogout, checkIsLoggedIn } = useAuth();
+  const { handleLogout, checkIsLoggedIn, getDeviceUUID, postUserSettings, getUserSettings } = useAuth();
   const [settings, setSettings] = useState(settings_default);
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [isFadingOut, setIsFadingOut] = useState(false);
@@ -38,7 +38,7 @@ function Display({
     useState(false);
   let confirmDisconnect = false;
   const videoRef = useRef<HTMLDivElement>(null);
-  const [cookies] = useCookies(["deviceUUID"]);
+  const [cookies, setCookie] = useCookies(["deviceUUID"]);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -63,18 +63,26 @@ function Display({
   });
 
   useEffect(() => {
+    //save user status and device uuid in cookie
     checkIsLoggedIn().then((r) => setUserStatus(r));
-    connectSocket();
-    if (deviceUUID == null) {
-      if (setDeviceUUID) {
+    if (!deviceUUID && setDeviceUUID) {
+      if(!cookies.deviceUUID){
+        const uuid = getDeviceUUID();
+        setCookie("deviceUUID", uuid, { path: "/" });
+        setDeviceUUID(uuid);
+      }else{
         setDeviceUUID(cookies.deviceUUID);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
-  // Fullscreen event listener
-  useEffect(() => {
+    getUserSettings().then((res) => {
+      console.log(res);
+    });
+
+    //socket
+    connectSocket();
+
+    //full screen
     const handleFullScreenChange = () => {
       setIsFullScreen(!!document.fullscreenElement);
     };
@@ -83,6 +91,7 @@ function Display({
     return () => {
       document.removeEventListener("fullscreenchange", handleFullScreenChange);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   // Fullscreen function
@@ -283,22 +292,6 @@ function Display({
       className={`bg-blue w-screen h-screen text-white`}
       style={{ filter: `brightness(${settings.brightness}%)` }}
     >
-      {/*<div*/}
-      {/*  className={`absolute top-0 right-0 w-[100px] h-[100px] text-black z-50 opacity-100`}*/}
-      {/*>*/}
-      {/*  <textarea id="messageInput" className="w-full h-[70%]">*/}
-      {/*    1231231231*/}
-      {/*  </textarea>*/}
-      {/*  <button*/}
-      {/*    className="w-full h-[30%] bg-blue text-white"*/}
-      {/*    onClick={() => {*/}
-      {/*      console.log(settings.sound.original_sound);*/}
-      {/*    }}*/}
-      {/*  >*/}
-      {/*    Send*/}
-      {/*  </button>*/}
-      {/*</div>*/}
-
       <div
         ref={videoRef}
         className={`w-full h-full absolute z-10 bg-blue ${isFadingOut ? "fade-in" : "fade-out"}`}
@@ -325,45 +318,53 @@ function Display({
               }}
             >
               <ReactPlayer
-                ref={playerRef}
-                url={settings.video.video_url}
-                playing
-                muted={!settings.sound.original_sound}
-                controls={false}
-                // width="calc(100% + 10px)"
-                height="100%"
-                width="100%"
-                volume={settings.sound.volume / 100}
-                playbackRate={1}
-                style={{
-                  position: "absolute",
-                  // top: "-50%",
-                  left: "-10px",
-                  overflow: "hidden",
-                }}
-                forceHLS={false}
-                config={{
-                  file: {
-                    forceHLS: false,
-                    hlsOptions: {
-                      maxBufferLength: 30,
-                      maxMaxBufferLength: 60,
-                      lowLatencyMode: false,
-                      backBufferLength: 30,
-                      startLevel: -1,
-                      debug: false,
+                  ref={playerRef}
+                  url={settings.video.video_url}
+                  playing
+                  loop={true}
+                  muted={!settings.sound.original_sound}
+                  controls={false}
+                  height="100%"
+                  width="100%"
+                  volume={settings.sound.volume / 100}
+                  playbackRate={1}
+                  config={{
+                    file: {
+                      attributes: {
+                        style: {
+                          width: "100%",
+                          height: "100%",
+                          objectFit: "cover"
+                        }
+                      },
+                      hlsOptions: {
+                        maxBufferLength: 30,
+                        maxMaxBufferLength: 60,
+                        lowLatencyMode: false,
+                        backBufferLength: 30,
+                        startLevel: -1,
+                        debug: false,
+                      },
                     },
-                  },
-                }}
-                playsinline
-                onBuffer={() => console.log("Buffering...")}
-                onBufferEnd={() => {
-                  console.log("Buffering ended", initBuffer);
-                  if (initBuffer === 0) {
-                    setInitBuffer(1);
-                    videoKeywordsGenerator().then((r) => console.log(r));
-                  }
-                }}
+                  }}
+                  onBuffer={() => console.log("Buffering...")}
+                  onBufferEnd={() => {
+                    console.log("Buffering ended", initBuffer);
+                    if (initBuffer === 0) {
+                      setInitBuffer(1);
+                      videoKeywordsGenerator().then((r) => console.log(r));
+                    }
+                  }}
+                  onError={(error) => {
+                    console.log("Video loading error:", error);
+                    setSettings(prev => ({
+                      ...prev,
+                      video: {
+                        ...prev.video,
+                        video_url: "https://virtualwindow.cam/recordings/rainy.mp4"
+                      }
+                    }));
+                  }}
               />
             </div>
             <audio

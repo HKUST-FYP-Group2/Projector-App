@@ -145,12 +145,52 @@ const useAuth = () => {
     }
   }
 
+  //post user settings
+  async function postUserSettings(settings: any) {
+      const token = cookies.token;
+      try {
+      await axios.post(
+          `/api/users/${cookies.user_id}/pjt`,
+          {
+          settings: settings,
+          },
+          {
+          headers: {
+              Authorization: `Bearer ${token}`,
+          },
+          },
+      );
+      } catch (err) {
+      console.log(err);
+      }
+  }
+
+  //get user settings
+  async function getUserSettings() {
+      const token = cookies.token;
+      console.log(token)
+      try {
+      const res = await axios.get(`/api/users/${cookies.user_id}/pjt`, {
+          headers: {
+          Authorization: `Bearer ${token}`,
+          },
+      });
+        console.log(res);
+      return res;
+      } catch (err) {
+      console.log(err);
+      return null;
+      }
+  }
+
   return {
     checkIsLoggedIn,
     handleLogin,
     handleLogout,
     getDeviceUUID,
     handleQRLogin,
+    postUserSettings,
+    getUserSettings,
   };
 };
 
