@@ -23,20 +23,26 @@ const useBluetooth = (
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSendMessage = useCallback(
-    debounce(async (message: string) => {
+    debounce((message: string, callback: (result: boolean) => void) => {
       try {
         if (characteristic_found) {
           const encoder = new TextEncoder();
           const value = encoder.encode(message);
-          await characteristic_found.writeValue(value);
-          return true;
+          characteristic_found
+            .writeValue(value)
+            .then(() => callback(true))
+            .catch((error: any) => {
+              console.log("Error sending message:", error);
+              callback(false);
+            });
+        } else {
+          callback(false);
         }
-        return false;
       } catch (error) {
         console.log("Error sending message:", error);
-        return false;
+        callback(false);
       }
-    }, 500), // 500ms delay
+    }, 500),
     [characteristic_found],
   );
 
@@ -56,9 +62,9 @@ const useBluetooth = (
     if (isBluetoothConnected && characteristic_found) {
       const msg = getMessageString();
       if (msg) {
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-expect-error
-        debouncedSendMessage(msg).then((r) => console.log(r));
+        debouncedSendMessage(msg, (result) => {
+          console.log(result);
+        });
       }
     }
 
@@ -157,7 +163,7 @@ const useBluetooth = (
     const received = new TextDecoder().decode(event.target.value);
     console.log(received);
     if (received === "bgm") {
-      videoKeywordsGenerator();
+      videoKeywordsGenerator().then((r) => console.log(r));
     } else {
       updateSettings(received);
     }

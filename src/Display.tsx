@@ -11,6 +11,7 @@ import useWebSocket from "./components/useWebSocket.tsx";
 import generateVideoKeywords from "./components/generateVideoKeywords.tsx";
 import { useCookies } from "react-cookie";
 import Settings from "./components/settings.ts";
+import { debounce } from "lodash";
 
 interface DisplayProps {
   userStatus?: any;
@@ -113,15 +114,24 @@ function Display({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Save settings to server
-  useEffect(() => {
-    if (isClosingSettingsPanel) {
-      putUserSettings(settings).then((res) => {
-        console.log("putUserSettings", res);
+  // Save settings to server with debounce
+  const debouncedPutSettings = useRef(
+    debounce((settingsToSave) => {
+      putUserSettings(settingsToSave).then((res) => {
+        console.log("Settings saved:", res);
       });
-    }
+    }, 1000),
+  ).current;
+
+  // Save settings when they change
+  useEffect(() => {
+    debouncedPutSettings(settings);
+
+    return () => {
+      debouncedPutSettings.cancel();
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isClosingSettingsPanel]);
+  }, [settings]);
 
   // Fullscreen function
   function handleFullScreen() {
