@@ -16,7 +16,7 @@
   },
   "sound": {
     "volume": 80,
-    "original_sound": false,
+    "mode": "original",
     "keywords": [""],
     "sound_url": ""
   },

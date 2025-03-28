@@ -273,7 +273,7 @@ function Display({
 
   // Simpler fade implementations that don't use Web Audio API
   const handleSimpleFade = () => {
-    if (!audioRef.current || settings.sound.original_sound) return;
+    if (!audioRef.current || settings.sound.mode === "original") return;
 
     const duration = audioRef.current.duration;
     if (!isFinite(duration)) return; // Guard against NaN
@@ -290,7 +290,7 @@ function Display({
   };
 
   const handleSimpleLoop = () => {
-    if (!audioRef.current || settings.sound.original_sound) return;
+    if (!audioRef.current || settings.sound.mode === "original") return;
 
     // Reset to beginning
     audioRef.current.currentTime = 0;
@@ -325,10 +325,10 @@ function Display({
 
   // Update volume directly
   useEffect(() => {
-    if (audioRef.current && !settings.sound.original_sound) {
+    if (audioRef.current && !(settings.sound.mode === "original")) {
       audioRef.current.volume = settings.sound.volume / 100;
     }
-  }, [settings.sound.volume, settings.sound.original_sound]);
+  }, [settings.sound.volume, settings.sound.mode]);
 
   return (
     <div
@@ -375,7 +375,7 @@ function Display({
                 url={settings.video.video_url}
                 playing
                 loop={true}
-                muted={!settings.sound.original_sound}
+                muted={!(settings.sound.mode === "original")}
                 controls={false}
                 height="100%"
                 width="100%"
@@ -406,7 +406,9 @@ function Display({
                   console.log("Buffering ended", initBuffer);
                   if (initBuffer === 0) {
                     setInitBuffer(1);
-                    videoKeywordsGenerator().then((r) => console.log(r));
+                    if(settings.sound.mode === "auto") {
+                      videoKeywordsGenerator().then((r) => console.log(r));
+                    }
                   }
                 }}
                 onError={(error) => {
@@ -429,7 +431,7 @@ function Display({
               ref={audioRef}
               src={settings.sound.sound_url || undefined}
               style={{ display: "none" }}
-              muted={settings.sound.original_sound}
+              muted={settings.sound.mode === "original"}
             />
           </>
         )}

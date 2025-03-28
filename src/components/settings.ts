@@ -16,7 +16,7 @@ interface Settings {
   };
   sound: {
     volume: number;
-    original_sound: boolean;
+    mode: string;
     keywords: string[];
     sound_url: string;
   };

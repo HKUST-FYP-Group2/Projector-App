@@ -129,13 +129,13 @@ const SettingsPanelRight = ({
               <div className={`settings-panel-switch-container`}>
                 <span className={`mt-[7px]`}>Original Streaming Sound</span>
                 <Switch
-                  checked={settings.sound.original_sound}
+                  checked={settings.sound.mode === "original"}
                   onChange={(e) =>
                     setSettings({
                       ...settings,
                       sound: {
                         ...settings.sound,
-                        original_sound: e.target.checked,
+                        mode: e.target.checked ? "original" : "auto",
                       },
                     })
                   }
@@ -160,7 +160,7 @@ const SettingsPanelRight = ({
                   className={`mr-3 ml-auto mt-1.5`}
                 />
               </div>
-              {!settings.sound.original_sound && (
+              {settings.sound.mode!=="original" && (
                 <>
                   <div
                     className={`settings-panel-switch-container`}
@@ -168,7 +168,7 @@ const SettingsPanelRight = ({
                   >
                     <span>Keywords: &nbsp;</span>
                     <span>
-                      {settings.sound.keywords?.length > 0
+                      {settings.sound.mode === "manual"? "Manual": settings.sound.keywords?.length > 0
                         ? settings.sound.keywords.slice(-2).join(", ")
                         : "None"}
                     </span>
@@ -201,13 +201,13 @@ const SettingsPanelRight = ({
                         onClick={() => {
                           if (settings.sound.keywords != null) {
                             searchForSoundsByKeywords(
-                              settings.sound.keywords,
-                              setSettings,
-                              settings,
-                              setSnackbarOpen,
-                              setSnackbarMessage,
-                              setSnackbarSeverity,
-                            );
+                                settings.sound.keywords?.slice(-2),
+                                setSettings,
+                                settings,
+                                setSnackbarOpen,
+                                setSnackbarMessage,
+                                setSnackbarSeverity,
+                             ).then(r => console.log(r));
                           }
                         }}
                       >
