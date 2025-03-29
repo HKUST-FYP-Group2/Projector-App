@@ -147,6 +147,9 @@ const useAuth = () => {
   async function putUserSettings(settings: any) {
     const token = cookies.token;
     const userId = cookies.user_id;
+    if(!userId || !token) {
+      return;
+    }
     try {
       return await axios.put(
         `/api/users/${userId}/pjt`,
