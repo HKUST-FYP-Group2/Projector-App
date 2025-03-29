@@ -23,15 +23,7 @@ const useWebSocket = ({
       useState<Settings | null>(null);
 
   const connectSocket = () => {
-
-
     const token = cookies.token;
-
-    if (!token) {
-      console.log("Token not ready, waiting 1s before retrying...");
-      setTimeout(connectSocket, 1000);
-      return;
-    }
 
     const newSocket = io(VITE_API_URL, {
       extraHeaders: {
