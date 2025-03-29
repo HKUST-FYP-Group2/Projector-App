@@ -19,19 +19,27 @@ const useWebSocket = ({
   const [socket, setSocket] = useState<Socket | null>(null);
   const socketRef = useRef<Socket | null>(null); // Add a ref to track socket
   const [cookies] = useCookies(["token", "user_id", "deviceUUID"]);
-  const [lastReceivedSettings, setLastReceivedSettings] =
-      useState<Settings | null>(null);
 
-  const connectSocket = () => {
+  const connectSocket = useCallback(() => {
     const token = cookies.token;
+    const userId = cookies.user_id;
 
+    if (!token) {
+      console.log("Token not ready, waiting 1s before retrying...");
+      setTimeout(connectSocket, 1000);
+      return;
+    }
+
+    if (socketRef.current) {
+      socketRef.current.disconnect();
+    }
+
+    // Create socket connection with current token
     const newSocket = io(VITE_API_URL, {
       extraHeaders: {
         Authorization: `Bearer ${token}`,
       },
     });
-    setSocket(newSocket);
-    socketRef.current = newSocket; // Update ref synchronously
 
     newSocket.on("connect", () => {
       newSocket.emit("SyncSetting", {
@@ -44,7 +52,7 @@ const useWebSocket = ({
     newSocket.on("SyncSetting", (data) => {
       console.log("ws", data);
 
-      if (data.user_id !== cookies["user_id"]) {
+      if (data.user_id !== userId) {
         return;
       }
       if (data.device_type === "Control") {
@@ -56,25 +64,28 @@ const useWebSocket = ({
         }
       }
       if (data.device_type === "Projector") {
-        if (data.settings) {
-          setLastReceivedSettings(data.settings);
-          setSettings(data.settings);
-        }
+        // if (data.settings) {
+        //   setLastReceivedSettings(data.settings);
+        //   setSettings(data.settings);
+        // }
       }
     });
 
     newSocket.on("disconnect", () => {
       console.log("ws disconnected");
     });
-  };
+
+    setSocket(newSocket);
+    socketRef.current = newSocket;
+    //eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cookies.token, cookies.user_id, VITE_API_URL]);
+
 
   const sendSetting = useCallback(
       (settings: Settings) => {
         const currentSocket = socketRef.current; // Access the ref's current value
-        console.log(currentSocket);
         if (
             currentSocket &&
-            JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings) &&
             cookies["user_id"] &&
             cookies["deviceUUID"]
         ) {
@@ -87,7 +98,7 @@ const useWebSocket = ({
           });
         }
       },
-      [lastReceivedSettings, cookies, deviceUUID], // Remove socket from dependencies
+      [cookies, deviceUUID], // Remove socket from dependencies
   );
 
   const sendLogout = () => {
@@ -108,8 +119,6 @@ const useWebSocket = ({
         const currentSocket = socketRef.current;
         if (
             currentSocket &&
-            JSON.stringify(settingsToSend) !==
-            JSON.stringify(lastReceivedSettings) &&
             cookies["user_id"] &&
             cookies["deviceUUID"]
         ) {
@@ -122,7 +131,7 @@ const useWebSocket = ({
           });
         }
       }, 500),
-      [lastReceivedSettings, cookies, deviceUUID], // Dependencies remain the same
+      [cookies, deviceUUID], // Dependencies remain the same
   );
 
   // Add this function to useWebSocket.tsx
@@ -139,13 +148,20 @@ const useWebSocket = ({
   }, []);
 
   useEffect(() => {
-    if (JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings)) {
+    if (JSON.stringify(settings)) {
       debouncedSendSetting(settings);
     }
     return () => {
       debouncedSendSetting.cancel();
     };
-  }, [settings, debouncedSendSetting, lastReceivedSettings]);
+  }, [settings, debouncedSendSetting]);
+
+  useEffect(() => {
+    connectSocket();
+    return () => {
+      disconnectSocket();
+    };
+  }, [connectSocket, disconnectSocket]);
 
   return { connectSocket, socket, sendSetting, sendLogout, disconnectSocket };
 };
