@@ -120,6 +120,10 @@ const useAuth = () => {
     } catch (err) {
       console.log(err);
       // navigate("/login");
+      removeCookie("token");
+      removeCookie("user_id");
+      removeCookie("username");
+      navigate("/login");
     }
     return null;
   }

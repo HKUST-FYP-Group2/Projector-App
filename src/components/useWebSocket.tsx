@@ -133,6 +133,19 @@ const useWebSocket = ({
       [lastReceivedSettings, cookies, deviceUUID], // Dependencies remain the same
   );
 
+  // Add this function to useWebSocket.tsx
+  const disconnectSocket = useCallback(() => {
+    if (socketRef.current) {
+      console.log("Disconnecting WebSocket...");
+      socketRef.current.off("SyncSetting"); // Remove specific listener
+      socketRef.current.off("connect");
+      socketRef.current.off("disconnect");
+      socketRef.current.disconnect();
+      socketRef.current = null;
+      setSocket(null);
+    }
+  }, []);
+
   useEffect(() => {
     if (JSON.stringify(settings) !== JSON.stringify(lastReceivedSettings)) {
       debouncedSendSetting(settings);
@@ -142,7 +155,7 @@ const useWebSocket = ({
     };
   }, [settings, debouncedSendSetting, lastReceivedSettings]);
 
-  return { connectSocket, socket, sendSetting, sendLogout };
+  return { connectSocket, socket, sendSetting, sendLogout, disconnectSocket };
 };
 
 export default useWebSocket;
