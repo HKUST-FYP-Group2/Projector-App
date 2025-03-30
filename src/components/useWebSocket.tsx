@@ -24,8 +24,7 @@ const useWebSocket = ({
     const token = cookies.token;
 
     if (!token) {
-      console.log("Token not ready, waiting 1s before retrying...");
-      setTimeout(connectSocket, 1000);
+      setTimeout(connectSocket, 5000);
       return;
     }
 
