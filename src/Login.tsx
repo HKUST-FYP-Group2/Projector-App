@@ -45,13 +45,22 @@ function Login({ deviceUUID, setDeviceUUID, setSettings }: LoginProps) {
         socket.on("QRLogin", (data) => {
           console.log(data);
           if (data?.login_success === "true" && data?.token) {
-            //TODO: GET USER ID SET SETTINGS
-            handleQRLogin(data.token);
+            handleQRLogin(data.token, data.user_id);
             setLoginSuccess(true);
             setIsFadingOut(true);
             setTimeout(() => {
               navigate("/");
-            }, 2000);
+            }, 1000);
+            getUserSettings(data.token, data.user_id).then((res) => {
+              console.log("qrlogin setting", res);
+              if (!res || res.status === 400) {
+                return;
+              } else {
+                if (res.data.settings) {
+                  setSettings(res.data.settings);
+                }
+              }
+            });
           }
         });
       }

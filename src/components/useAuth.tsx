@@ -103,8 +103,9 @@ const useAuth = () => {
     }
   }
 
-  async function handleQRLogin(token: string) {
+  async function handleQRLogin(token: string, id: any) {
     setCookie("token", token, { path: "/" });
+    setCookie("user_id", id, { path: "/" });
   }
 
   async function handleLogout() {
@@ -186,7 +187,6 @@ const useAuth = () => {
   async function getUserSettings(tok:string, Id:number) {
     const token = cookies.token || tok;
     const userId = cookies.user_id || Id;
-    console.log(token, userId)
 
     if (!userId || !token) {
       return null;
