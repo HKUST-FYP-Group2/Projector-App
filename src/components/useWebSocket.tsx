@@ -20,9 +20,8 @@ const useWebSocket = ({
   const socketRef = useRef<Socket | null>(null); // Add a ref to track socket
   const [cookies] = useCookies(["token", "user_id", "deviceUUID"]);
 
-  const connectSocket = useCallback(() => {
+  const connectSocket = () => {
     const token = cookies.token;
-    const userId = cookies.user_id;
 
     if (!token) {
       console.log("Token not ready, waiting 1s before retrying...");
@@ -49,57 +48,60 @@ const useWebSocket = ({
       console.log("ws connected");
     });
 
-    newSocket.on("SyncSetting", (data) => {
-      console.log("ws", data);
-
-      if (data.user_id !== userId) {
-        return;
-      }
-      if (data.device_type === "Control") {
-        if (data.msg === "GetSetting") {
-          sendSetting(settings);
-        }
-        if (data.msg === "SetSetting") {
-          setSettings(data.settings);
-        }
-      }
-      if (data.device_type === "Projector") {
-        // if (data.settings) {
-        //   setLastReceivedSettings(data.settings);
-        //   setSettings(data.settings);
-        // }
-      }
-    });
-
     newSocket.on("disconnect", () => {
       console.log("ws disconnected");
     });
 
     setSocket(newSocket);
     socketRef.current = newSocket;
-    //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cookies.token, cookies.user_id, VITE_API_URL]);
+  }
 
 
-  const sendSetting = useCallback(
-      (settings: Settings) => {
-        const currentSocket = socketRef.current; // Access the ref's current value
-        if (
-            currentSocket &&
-            cookies["user_id"] &&
-            cookies["deviceUUID"]
-        ) {
-          currentSocket.emit("SyncSetting", {
-            user_id: cookies["user_id"],
-            device_type: "Projector",
-            device_uuid: deviceUUID || cookies["deviceUUID"],
-            msg: "UpdateProjectorAppSetting",
-            settings: settings,
-          });
+  const sendSetting = (s:any) => {
+      const currentSocket = socketRef.current;
+      if (
+          currentSocket &&
+          cookies["user_id"] &&
+          cookies["deviceUUID"]
+      ) {
+        currentSocket.emit("SyncSetting", {
+          user_id: cookies["user_id"],
+          device_type: "Projector",
+          device_uuid: deviceUUID || cookies["deviceUUID"],
+          msg: "UpdateProjectorAppSetting",
+          settings: s,
+        });
+      }
+  }
+
+  useEffect(() => {
+    if (socket) {
+      const handleSyncSetting = (data: { user_id: any; device_type: string; msg: string; settings: Settings; }) => {
+        console.log("ws", data);
+
+        if (data.user_id !== cookies.user_id) {
+          return;
         }
-      },
-      [cookies, deviceUUID], // Remove socket from dependencies
-  );
+
+        if (data.device_type === "Control") {
+          if (data.msg === "GetSetting") {
+            sendSetting(settings);
+          }
+          if (data.msg === "SetSetting") {
+            setSettings(data.settings);
+          }
+        }
+      };
+
+      socket.on("SyncSetting", handleSyncSetting);
+
+      // Clean up
+      return () => {
+        socket.off("SyncSetting", handleSyncSetting);
+      };
+    }
+  }, [socket, settings, cookies.user_id, sendSetting, setSettings]);
+
 
   const sendLogout = () => {
     const currentSocket = socketRef.current;
@@ -155,17 +157,6 @@ const useWebSocket = ({
       debouncedSendSetting.cancel();
     };
   }, [settings, debouncedSendSetting]);
-
-  useEffect(() => {
-    if (cookies.token) {
-      // Only attempt connection when token exists
-      connectSocket();
-    }
-
-    return () => {
-      disconnectSocket();
-    };
-  }, [cookies.token, connectSocket, disconnectSocket]);
 
   return { connectSocket, socket, sendSetting, sendLogout, disconnectSocket };
 };
