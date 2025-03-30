@@ -49,7 +49,7 @@ function Display({
     useState(false);
   let confirmDisconnect = false;
   const videoRef = useRef<HTMLDivElement>(null);
-  const [cookies, setCookie] = useCookies(["deviceUUID"]);
+  const [cookies, setCookie] = useCookies(["deviceUUID", "token", "user_id"]);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -86,10 +86,10 @@ function Display({
       }
     }
 
-    getUserSettings().then((res) => {
+    getUserSettings(cookies.token, cookies.user_id).then((res) => {
       console.log("userStatus", res);
       if (!res || res.status === 400) {
-        putUserSettings(settings).then((res) => {
+        putUserSettings(settings, cookies.user_id).then((res) => {
           console.log("putUserSettings", res);
         });
       } else {
@@ -116,21 +116,21 @@ function Display({
 
   // Save settings to server with debounce
   const debouncedPutSettings = useRef(
-    debounce((settingsToSave) => {
-      putUserSettings(settingsToSave).then((res) => {
-        console.log("Settings saved:", res);
-      });
-    }, 1000),
+      debounce((settingsToSave, userID) => {
+        putUserSettings(settingsToSave, userID).then((res) => {
+          console.log("Settings saved:", res);
+        });
+      }, 1000)
   ).current;
 
   // Save settings when they change
   useEffect(() => {
-    debouncedPutSettings(settings);
+    const userID = cookies.user_id
+    debouncedPutSettings(settings, userID);
 
     return () => {
       debouncedPutSettings.cancel();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
 
   // Fullscreen function

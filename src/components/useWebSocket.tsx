@@ -157,11 +157,15 @@ const useWebSocket = ({
   }, [settings, debouncedSendSetting]);
 
   useEffect(() => {
-    connectSocket();
+    if (cookies.token) {
+      // Only attempt connection when token exists
+      connectSocket();
+    }
+
     return () => {
       disconnectSocket();
     };
-  }, [connectSocket, disconnectSocket]);
+  }, [cookies.token, connectSocket, disconnectSocket]);
 
   return { connectSocket, socket, sendSetting, sendLogout, disconnectSocket };
 };

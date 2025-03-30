@@ -60,15 +60,20 @@ const useAuth = () => {
       console.log(res);
       if (res.status === 200) {
         setCookie("token", res.data.token, { path: "/" });
+        setCookie("user_id", res.data.user_id, { path: "/" });
 
         return {
           login_success: true,
           error_message: "",
+          token: res.data.token,
+          user_id: res.data.user_id,
         };
       } else {
         return {
           login_success: false,
           error_message: "Invalid Login Credential",
+          token: null,
+            user_id: null,
         };
       }
     } catch (err) {
@@ -84,12 +89,16 @@ const useAuth = () => {
           error_message:
             errorMessages[err.response.status] ||
             "Ask Ivan to turn on the server",
+            token: null,
+            user_id: null,
         };
       }
 
       return {
         login_success: false,
         error_message: "Please connect to the HKUST VPN or use Eduroam Wifi.",
+        token: null,
+        user_id: null,
       };
     }
   }
@@ -148,23 +157,25 @@ const useAuth = () => {
   }
 
   //post user settings
-  async function putUserSettings(settings: any) {
+  async function putUserSettings(settings: any, ID: number) {
     const token = cookies.token;
-    const userId = cookies.user_id;
+    const userId = cookies.user_id || ID;
+
     if(!userId || !token) {
       return;
     }
+
     try {
       return await axios.put(
-        `/api/users/${userId}/pjt`,
-        {
-          projector_app_setting: settings,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
+          `/api/users/${userId}/pjt`,
+          {
+            projector_app_setting: settings,
           },
-        },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
       );
     } catch (err) {
       console.log(err);
@@ -172,9 +183,10 @@ const useAuth = () => {
   }
 
   //get user settings
-  async function getUserSettings() {
-    const token = cookies.token;
-    const userId = cookies.user_id;
+  async function getUserSettings(tok:string, Id:number) {
+    const token = cookies.token || tok;
+    const userId = cookies.user_id || Id;
+    console.log(token, userId)
 
     if (!userId || !token) {
       return null;

@@ -11,9 +11,10 @@ import { useCookies } from "react-cookie";
 interface LoginProps {
   deviceUUID: any;
   setDeviceUUID: (value: any) => void;
+  setSettings: (value: any) => void;
 }
 
-function Login({ deviceUUID, setDeviceUUID }: LoginProps) {
+function Login({ deviceUUID, setDeviceUUID, setSettings }: LoginProps) {
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -21,7 +22,7 @@ function Login({ deviceUUID, setDeviceUUID }: LoginProps) {
   const [isFadingOut, setIsFadingOut] = useState(false);
   const [loginSuccess, setLoginSuccess] = useState(false);
   const loginMainRef = useRef<HTMLDivElement>(null);
-  const { handleLogin, getDeviceUUID, handleQRLogin } = useAuth();
+  const { handleLogin, getDeviceUUID, handleQRLogin, getUserSettings } = useAuth();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setCookie] = useCookies(["deviceUUID"]);
   const VITE_API_ENDPOINT = import.meta.env.VITE_API_URL;
@@ -44,12 +45,13 @@ function Login({ deviceUUID, setDeviceUUID }: LoginProps) {
         socket.on("QRLogin", (data) => {
           console.log(data);
           if (data?.login_success === "true" && data?.token) {
+            //TODO: GET USER ID SET SETTINGS
             handleQRLogin(data.token);
             setLoginSuccess(true);
             setIsFadingOut(true);
             setTimeout(() => {
               navigate("/");
-            }, 1000);
+            }, 2000);
           }
         });
       }
@@ -81,7 +83,7 @@ function Login({ deviceUUID, setDeviceUUID }: LoginProps) {
     }
 
     await handleLogin(username.value, password.value).then(
-      (r: { login_success: any; error_message: string }) => {
+      (r: { login_success: boolean; error_message: string, token: any, user_id: any }) => {
         if (r.login_success) {
           setLoading(false);
           setLoginSuccess(true);
@@ -89,6 +91,16 @@ function Login({ deviceUUID, setDeviceUUID }: LoginProps) {
           setTimeout(() => {
             navigate("/");
           }, 1000);
+          getUserSettings(r.token, r.user_id).then((res) => {
+            console.log("userStatus", res);
+            if (!res || res.status === 400) {
+              return;
+            } else {
+              if (res.data.settings) {
+                setSettings(res.data.settings);
+              }
+            }
+          });
         } else {
           setLoading(false);
           setErrorMessage(r.error_message);
