@@ -8,6 +8,7 @@ const useAuth = () => {
     "token",
     "user_id",
     "username",
+    "stream_key",
   ]);
 
   async function checkIsLoggedIn() {
@@ -73,7 +74,7 @@ const useAuth = () => {
           login_success: false,
           error_message: "Invalid Login Credential",
           token: null,
-            user_id: null,
+          user_id: null,
         };
       }
     } catch (err) {
@@ -89,8 +90,8 @@ const useAuth = () => {
           error_message:
             errorMessages[err.response.status] ||
             "Ask Ivan to turn on the server",
-            token: null,
-            user_id: null,
+          token: null,
+          user_id: null,
         };
       }
 
@@ -162,21 +163,21 @@ const useAuth = () => {
     const token = cookies.token;
     const userId = cookies.user_id || ID;
 
-    if(!userId || !token) {
+    if (!userId || !token) {
       return;
     }
 
     try {
       return await axios.put(
-          `/api/users/${userId}/pjt`,
-          {
-            projector_app_setting: settings,
+        `/api/users/${userId}/pjt`,
+        {
+          projector_app_setting: settings,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+        },
       );
     } catch (err) {
       console.log(err);
@@ -184,7 +185,7 @@ const useAuth = () => {
   }
 
   //get user settings
-  async function getUserSettings(tok:string, Id:number) {
+  async function getUserSettings(tok: string, Id: number) {
     const token = cookies.token || tok;
     const userId = cookies.user_id || Id;
 
@@ -204,6 +205,24 @@ const useAuth = () => {
     }
   }
 
+  //get stream url
+  async function getStreamUrl(tok: string, id: number) {
+    const token = cookies.token || tok;
+    const userId = cookies.user_id || id;
+    try {
+      const res = await axios.get(`/api/users/${userId}/sk`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      setCookie("stream_key", res.data.stream_key, { path: "/" });
+      return res.data.stream_key;
+    } catch (err) {
+      console.log(err);
+      return null;
+    }
+  }
+
   return {
     checkIsLoggedIn,
     handleLogin,
@@ -212,6 +231,7 @@ const useAuth = () => {
     handleQRLogin,
     putUserSettings,
     getUserSettings,
+    getStreamUrl,
   };
 };
 

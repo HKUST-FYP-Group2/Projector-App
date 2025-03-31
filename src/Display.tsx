@@ -36,6 +36,7 @@ function Display({
     getDeviceUUID,
     putUserSettings,
     getUserSettings,
+    getStreamUrl,
   } = useAuth();
 
   const [isFullScreen, setIsFullScreen] = useState(false);
@@ -49,7 +50,12 @@ function Display({
     useState(false);
   let confirmDisconnect = false;
   const videoRef = useRef<HTMLDivElement>(null);
-  const [cookies, setCookie] = useCookies(["deviceUUID", "token", "user_id"]);
+  const [cookies, setCookie] = useCookies([
+    "deviceUUID",
+    "token",
+    "user_id",
+    "stream_key",
+  ]);
 
   const [snackbarOpen, setSnackbarOpen] = useState(false);
   const [snackbarMessage, setSnackbarMessage] = useState("");
@@ -85,11 +91,25 @@ function Display({
         setDeviceUUID(cookies.deviceUUID);
       }
     }
+    if (!cookies.stream_key) {
+      getStreamUrl(cookies.token, cookies.user_id).then((res) => {
+        setCookie("stream_key", res, { path: "/" });
+      });
+    }
 
     getUserSettings(cookies.token, cookies.user_id).then((res) => {
       console.log("userStatus", res);
       if (!res || res.status === 400) {
-        putUserSettings(settings, cookies.user_id).then((res) => {
+        //replace settings url with https://virtualwindow.cam/hls/admin_key/index.m3u8
+        const newSettings = {
+          ...settings,
+          video: {
+            ...settings.video,
+            video_url: `https://virtualwindow.cam/hls/${cookies.stream_key}/index.m3u8`,
+          },
+        };
+        setSettings(newSettings);
+        putUserSettings(newSettings, cookies.user_id).then((res) => {
           console.log("putUserSettings", res);
         });
       } else {
@@ -116,16 +136,16 @@ function Display({
 
   // Save settings to server with debounce
   const debouncedPutSettings = useRef(
-      debounce((settingsToSave, userID) => {
-        putUserSettings(settingsToSave, userID).then((res) => {
-          console.log("Settings saved:", res);
-        });
-      }, 1000)
+    debounce((settingsToSave, userID) => {
+      putUserSettings(settingsToSave, userID).then((res) => {
+        console.log("Settings saved:", res);
+      });
+    }, 1000),
   ).current;
 
   // Save settings when they change
   useEffect(() => {
-    const userID = cookies.user_id
+    const userID = cookies.user_id;
     debouncedPutSettings(settings, userID);
 
     return () => {
@@ -407,7 +427,7 @@ function Display({
                   console.log("Buffering ended", initBuffer);
                   if (initBuffer === 0) {
                     setInitBuffer(1);
-                    if(settings.sound.mode === "auto") {
+                    if (settings.sound.mode === "auto") {
                       videoKeywordsGenerator().then((r) => console.log(r));
                     }
                   }
