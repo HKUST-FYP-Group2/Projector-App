@@ -395,6 +395,7 @@ function Display({
                 ref={playerRef}
                 url={settings.video.video_url}
                 playing
+                autoplay
                 loop={true}
                 muted={!(settings.sound.mode === "original")}
                 controls={false}
@@ -440,8 +441,7 @@ function Display({
                         ...prev,
                         video: {
                           ...prev.video,
-                          video_url:
-                            "https://virtualwindow.cam/recordings/rainy.mp4",
+                          video_url: `https://virtualwindow.cam/recordings/AI_snow_mountain_${Math.floor(Math.random() * 4 + 1)}.mp4`,
                         },
                       }) as Settings,
                   );
