@@ -16,6 +16,7 @@ const useAuth = () => {
       navigate("/login");
     }
     const status = await loginStatus();
+    console.log("isLoggedin", status);
     if (status.logged_in) {
       navigate("/");
       //save user_id and username to cookies
@@ -188,7 +189,7 @@ const useAuth = () => {
   async function getUserSettings(tok: string, Id: number) {
     const token = cookies.token || tok;
     const userId = cookies.user_id || Id;
-
+    console.log("getUserSettings", token, userId);
     if (!userId || !token) {
       return null;
     }

@@ -98,7 +98,7 @@ function Display({
     }
 
     getUserSettings(cookies.token, cookies.user_id).then((res) => {
-      console.log("userStatus", res);
+      console.log("user Settings", res);
       if (!res || res.status === 400) {
         //replace settings url with https://virtualwindow.cam/hls/admin_key/index.m3u8
         const newSettings = {
@@ -395,7 +395,7 @@ function Display({
                 ref={playerRef}
                 url={settings.video.video_url}
                 playing
-                autoplay
+                autoPlay
                 loop={true}
                 muted={!(settings.sound.mode === "original")}
                 controls={false}
