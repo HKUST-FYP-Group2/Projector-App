@@ -17,7 +17,8 @@
   "sound": {
     "volume": 80,
     "mode": "original",
-    "keywords": [""],
+    "keywords": [],
+    "sound_name": "",
     "sound_url": ""
   },
   "video": {

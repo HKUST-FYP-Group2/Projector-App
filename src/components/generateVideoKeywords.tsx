@@ -6,7 +6,7 @@ import searchForSoundsByKeywords from "./searchForSoundsByKeywords";
 interface GenerateVideoKeywordsProps {
   playerRef: React.RefObject<ReactPlayer>;
   settings: Settings;
-  setSettings: (value: Settings) => void;
+  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
   setSnackbarOpen: (value: boolean) => void;
   setSnackbarMessage: (value: string) => void;
   setSnackbarSeverity: (value: "success" | "error") => void;
@@ -69,12 +69,13 @@ const generateVideoKeywords = ({
               // Parse the cleaned JSON string
               const keywordsObj = JSON.parse(jsonStr);
               console.log("Parsed keywords:", keywordsObj);
+              console.log(settings.sound.keywords);
 
               if (keywordsObj && keywordsObj.keywords) {
                 // Update settings with keywords
                 existingKeywords.push(...keywordsObj.keywords);
                 if (existingKeywords.length > 6) {
-                  existingKeywords = existingKeywords.slice(2);
+                  existingKeywords = existingKeywords.slice(-6);
                 }
                 console.log(existingKeywords);
                 setSettings({

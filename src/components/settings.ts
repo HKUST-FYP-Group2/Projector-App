@@ -18,6 +18,7 @@ interface Settings {
     volume: number;
     mode: string;
     keywords: string[];
+    sound_name: string;
     sound_url: string;
   };
   video: {

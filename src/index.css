@@ -76,6 +76,10 @@ input::-ms-clear {
     animation: fadeOut 1s ease-in-out;
 }
 
+.fade-out-120 {
+    animation: fadeOut 2s ease-in-out;
+}
+
 .fade-out-short {
     animation: fadeOut 0.3s ease-in-out;
 }

@@ -160,7 +160,7 @@ const SettingsPanelRight = ({
                   className={`mr-3 ml-auto mt-1.5`}
                 />
               </div>
-              {settings.sound.mode!=="original" && (
+              {settings.sound.mode !== "original" && (
                 <>
                   <div
                     className={`settings-panel-switch-container`}
@@ -168,9 +168,11 @@ const SettingsPanelRight = ({
                   >
                     <span>Keywords: &nbsp;</span>
                     <span>
-                      {settings.sound.mode === "manual"? "Manual": settings.sound.keywords?.length > 0
-                        ? settings.sound.keywords.slice(-2).join(", ")
-                        : "None"}
+                      {settings.sound.mode === "manual"
+                        ? "Manual"
+                        : settings.sound.keywords?.length > 0
+                          ? settings.sound.keywords.slice(-2).join(", ")
+                          : "None"}
                     </span>
                     <span
                       className={`mr-0 ml-auto cursor-pointer text-gold hover:text-yellow`}
@@ -183,7 +185,7 @@ const SettingsPanelRight = ({
                   <div
                     className={`bg-blue-3 px-3 py-2 rounded flex flex-col mt-2 w-[80%]`}
                   >
-                    <span className="mb-1">Sound URL:</span>
+                    <span className="mb-1">Sound:</span>
                     <div className="flex w-full">
                       <span
                         className={`break-all flex-1 hover:underline hover:text-yellow cursor-pointer`}
@@ -194,20 +196,20 @@ const SettingsPanelRight = ({
                           }
                         }}
                       >
-                        {settings.sound.sound_url}
+                        {settings.sound.sound_name}
                       </span>
                       <span
                         className={`flex-shrink-0 cursor-pointer text-gold hover:text-yellow ml-2`}
                         onClick={() => {
                           if (settings.sound.keywords != null) {
                             searchForSoundsByKeywords(
-                                settings.sound.keywords?.slice(-2),
-                                setSettings,
-                                settings,
-                                setSnackbarOpen,
-                                setSnackbarMessage,
-                                setSnackbarSeverity,
-                             ).then(r => console.log(r));
+                              settings.sound.keywords?.slice(-2),
+                              setSettings,
+                              settings,
+                              setSnackbarOpen,
+                              setSnackbarMessage,
+                              setSnackbarSeverity,
+                            ).then((r) => console.log(r));
                           }
                         }}
                       >

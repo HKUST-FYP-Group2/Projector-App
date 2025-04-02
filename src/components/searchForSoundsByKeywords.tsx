@@ -62,23 +62,22 @@ const searchForSoundsByKeywords = async (
     console.log("Found sounds:", soundData);
 
     if (soundData.count > 0 && soundData.results.length > 0) {
-      // Select a random sound from the results
+      // random sound from the list
       const randomIndex = Math.floor(
         Math.random() * Math.min(soundData.results.length, 10),
       );
       console.log(randomIndex);
       const selectedSound = soundData.results[randomIndex];
 
-      // Get the high quality preview URL
       const soundUrl = selectedSound.previews["preview-hq-mp3"];
 
       console.log("Selected sound:", selectedSound.name, "URL:", soundUrl);
 
-      // Update the settings with the selected sound URL
       setSettings({
         ...settings,
         sound: {
           ...settings.sound,
+          sound_name: selectedSound.name,
           sound_url: soundUrl,
         },
       });

@@ -250,6 +250,7 @@ function Display({
   }, [settings.video.video_url]);
 
   //audio
+
   const audioRef = useRef<HTMLAudioElement>(null);
   useEffect(() => {
     // handle audio fading
@@ -358,7 +359,7 @@ function Display({
     >
       <div
         ref={videoRef}
-        className={`w-full h-full absolute z-10 bg-blue ${isFadingOut ? "fade-in" : "fade-out"}`}
+        className={`w-full h-full absolute z-10 bg-blue ${isFadingOut ? "fade-in" : "fade-out-120"}`}
         onAnimationEnd={() => {
           if (videoRef.current) {
             if (isFadingOut) {
