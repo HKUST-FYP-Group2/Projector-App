@@ -8,17 +8,23 @@ interface WebSocketProps {
   settings: Settings;
   setSettings: (value: Settings) => void;
   deviceUUID: any;
+    setSnackbarOpen: (value: boolean) => void;
+    setSnackbarMessage: (value: string) => void;
+    setSnackbarSeverity: (value: string) => void;
 }
 
 const useWebSocket = ({
                         settings,
                         setSettings,
                         deviceUUID,
+                        setSnackbarOpen,
+                        setSnackbarMessage,
+                        setSnackbarSeverity
                       }: WebSocketProps) => {
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const [socket, setSocket] = useState<Socket | null>(null);
   const socketRef = useRef<Socket | null>(null); // Add a ref to track socket
-  const [cookies] = useCookies(["token", "user_id", "deviceUUID"]);
+  const [cookies] = useCookies(["token", "user_id", "deviceUUID", "stream_key"]);
 
   const connectSocket = () => {
     const token = cookies.token;
@@ -78,7 +84,7 @@ const useWebSocket = ({
       const handleSyncSetting = (data: { user_id: any; device_type: string; msg: string; settings: Settings; }) => {
         console.log("ws", data);
 
-        if (data.user_id !== cookies.user_id) {
+        if (data.user_id != cookies.user_id) {
           return;
         }
 
@@ -88,6 +94,26 @@ const useWebSocket = ({
           }
           if (data.msg === "SetSetting") {
             setSettings(data.settings);
+          }
+        }
+
+        if (data.device_type === "Camera") {
+          if (data.msg === "StartStreaming") {
+            setTimeout(()=>{
+              setSettings({
+                ...settings,
+                video:{
+                  show_video: true,
+                  video_url: `https://virtualwindow.cam/hls/${cookies.stream_key}/index.m3u8`
+                }
+              })
+            },2000)
+          }
+
+          if(data.msg === "StopStreaming"){
+            setSnackbarMessage("Stop Streaming");
+            setSnackbarOpen(true);
+            setSnackbarSeverity("error");
           }
         }
       };

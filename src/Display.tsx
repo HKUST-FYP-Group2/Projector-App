@@ -73,10 +73,13 @@ function Display({
     setSnackbarSeverity,
   });
 
-  const { connectSocket, sendLogout, disconnectSocket } = useWebSocket({
+  const { connectSocket, sendLogout, disconnectSocket} = useWebSocket({
     settings,
     setSettings,
     deviceUUID,
+    setDeviceUUID,
+    setSnackbarOpen,
+    setSnackbarMessage,
   });
 
   useEffect(() => {
@@ -436,16 +439,24 @@ function Display({
                 }}
                 onError={(error) => {
                   console.log("Video loading error:", error);
-                  setSettings(
-                    (prev: Settings) =>
-                      ({
-                        ...prev,
-                        video: {
-                          ...prev.video,
-                          video_url: `https://virtualwindow.cam/recordings/AI_snow_mountain_${Math.floor(Math.random() * 4 + 1)}.mp4`,
-                        },
-                      }) as Settings,
-                  );
+
+                  let retryCount = 0;
+
+                  if (retryCount < 10) {
+                    retryCount += 1;
+                    setTimeout(() => {
+                      setSettings(prevSettings => ({...prevSettings}));
+                    }, 1000);
+                  } else {
+                    setSettings(prevSettings => ({
+                      ...prevSettings,
+                      video: {
+                        ...prevSettings.video,
+                        video_url: `https://virtualwindow.cam/recordings/AI_snow_mountain_${Math.floor(Math.random() * 4 + 1)}.mp4`,
+                      },
+                    }));
+                    retryCount = 0;
+                  }
                 }}
               />
             </div>

@@ -216,6 +216,7 @@ const useAuth = () => {
           Authorization: `Bearer ${token}`,
         },
       });
+      console.log("streamKey", res.data.stream_key)
       setCookie("stream_key", res.data.stream_key, { path: "/" });
       return res.data.stream_key;
     } catch (err) {

@@ -127,7 +127,7 @@ const connectAPI = async (base64Image: string, existingKeywords: string[]) => {
         Authorization: "Bearer sk-04c0b0ad099e407c84a0fba8e48131a2",
       },
       body: JSON.stringify({
-        model: "qwen2.5-vl-72b-instruct",
+        model: "qwen2.5-vl-32b-instruct",
         messages: [
           {
             role: "user",
