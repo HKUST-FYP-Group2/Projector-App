@@ -8,23 +8,28 @@ interface WebSocketProps {
   settings: Settings;
   setSettings: (value: Settings) => void;
   deviceUUID: any;
-    setSnackbarOpen: (value: boolean) => void;
-    setSnackbarMessage: (value: string) => void;
-    setSnackbarSeverity: (value: string) => void;
+  setSnackbarOpen: (value: boolean) => void;
+  setSnackbarMessage: (value: string) => void;
+  setSnackbarSeverity: (value: "success" | "error") => void;
 }
 
 const useWebSocket = ({
-                        settings,
-                        setSettings,
-                        deviceUUID,
-                        setSnackbarOpen,
-                        setSnackbarMessage,
-                        setSnackbarSeverity
-                      }: WebSocketProps) => {
+  settings,
+  setSettings,
+  deviceUUID,
+  setSnackbarOpen,
+  setSnackbarMessage,
+  setSnackbarSeverity,
+}: WebSocketProps) => {
   const VITE_API_URL = import.meta.env.VITE_API_URL;
   const [socket, setSocket] = useState<Socket | null>(null);
   const socketRef = useRef<Socket | null>(null); // Add a ref to track socket
-  const [cookies] = useCookies(["token", "user_id", "deviceUUID", "stream_key"]);
+  const [cookies] = useCookies([
+    "token",
+    "user_id",
+    "deviceUUID",
+    "stream_key",
+  ]);
 
   const connectSocket = () => {
     const token = cookies.token;
@@ -59,29 +64,29 @@ const useWebSocket = ({
 
     setSocket(newSocket);
     socketRef.current = newSocket;
-  }
+  };
 
-
-  const sendSetting = (s:any) => {
-      const currentSocket = socketRef.current;
-      if (
-          currentSocket &&
-          cookies["user_id"] &&
-          cookies["deviceUUID"]
-      ) {
-        currentSocket.emit("SyncSetting", {
-          user_id: cookies["user_id"],
-          device_type: "Projector",
-          device_uuid: deviceUUID || cookies["deviceUUID"],
-          msg: "UpdateProjectorAppSetting",
-          settings: s,
-        });
-      }
-  }
+  const sendSetting = (s: any) => {
+    const currentSocket = socketRef.current;
+    if (currentSocket && cookies["user_id"] && cookies["deviceUUID"]) {
+      currentSocket.emit("SyncSetting", {
+        user_id: cookies["user_id"],
+        device_type: "Projector",
+        device_uuid: deviceUUID || cookies["deviceUUID"],
+        msg: "UpdateProjectorAppSetting",
+        settings: s,
+      });
+    }
+  };
 
   useEffect(() => {
     if (socket) {
-      const handleSyncSetting = (data: { user_id: any; device_type: string; msg: string; settings: Settings; }) => {
+      const handleSyncSetting = (data: {
+        user_id: any;
+        device_type: string;
+        msg: string;
+        settings: Settings;
+      }) => {
         console.log("ws", data);
 
         if (data.user_id != cookies.user_id) {
@@ -100,19 +105,18 @@ const useWebSocket = ({
         if (data.device_type === "Camera") {
           if (data.msg === "StartStreaming") {
             handleSnackBar("Streaming Enabled, Buffering......", "success");
-            setTimeout(()=>{
+            setTimeout(() => {
               setSettings({
                 ...settings,
                 video: {
                   show_video: true,
-                  video_url: `https://virtualwindow.cam/hls/${cookies.stream_key}/index.m3u8`
+                  video_url: `https://virtualwindow.cam/hls/${cookies.stream_key}/index.m3u8`,
                 },
-
               });
-            },5000)
+            }, 5000);
           }
 
-          if(data.msg === "StopStreaming"){
+          if (data.msg === "StopStreaming") {
             handleSnackBar("Streaming Disabled", "error");
           }
         }
@@ -126,7 +130,6 @@ const useWebSocket = ({
       };
     }
   }, [socket, settings, cookies.user_id, sendSetting, setSettings]);
-
 
   const sendLogout = () => {
     const currentSocket = socketRef.current;
@@ -142,26 +145,22 @@ const useWebSocket = ({
 
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const debouncedSendSetting = useCallback(
-      debounce((settingsToSend: Settings) => {
-        const currentSocket = socketRef.current;
-        if (
-            currentSocket &&
-            cookies["user_id"] &&
-            cookies["deviceUUID"]
-        ) {
-          currentSocket.emit("SyncSetting", {
-            user_id: cookies["user_id"],
-            device_type: "Projector",
-            device_uuid: deviceUUID || cookies["deviceUUID"],
-            msg: "UpdateProjectorAppSetting",
-            settings: settingsToSend,
-          });
-        }
-      }, 500),
-      [cookies, deviceUUID], // Dependencies remain the same
+    debounce((settingsToSend: Settings) => {
+      const currentSocket = socketRef.current;
+      if (currentSocket && cookies["user_id"] && cookies["deviceUUID"]) {
+        currentSocket.emit("SyncSetting", {
+          user_id: cookies["user_id"],
+          device_type: "Projector",
+          device_uuid: deviceUUID || cookies["deviceUUID"],
+          msg: "UpdateProjectorAppSetting",
+          settings: settingsToSend,
+        });
+      }
+    }, 500),
+    [cookies, deviceUUID], // Dependencies remain the same
   );
 
-  function handleSnackBar(message: string, severity: string) {
+  function handleSnackBar(message: string, severity: "success" | "error") {
     setSnackbarMessage(message);
     setSnackbarSeverity(severity);
     setSnackbarOpen(true);
