@@ -63,11 +63,12 @@ const SettingsPanelRight = ({
                   className={`mr-0 ml-auto`}
                 />
               </div>
+
               <div
-                className={`settings-panel-switch-container`}
-                style={{ display: "flex", alignItems: "center" }}
+                  className={`bg-blue-3 px-3 py-2 rounded flex flex-col mt-2 w-[80%]`}
               >
-                <span>Streaming URL</span>
+                <span className="mb-1">Streaming URL</span>
+                <div className="flex w-full h-fit">
                 <input
                   type="textarea"
                   value={settings.video.video_url}
@@ -80,23 +81,24 @@ const SettingsPanelRight = ({
                       },
                     })
                   }
-                  className={`mr-0 ml-2 w-auto bg-transparent border-[1px] rounded px-1`}
-                  style={{ flexGrow: 1 }}
+                  className={`mr-0 ml-2 w-auto bg-transparent border-[1px] rounded px-1 h-fit`}
+                  style={{ flexGrow: 2 }}
                 />
+                </div>
               </div>
-              <div
-                className={`settings-panel-switch-container cursor-pointer hover:bg-yellow`}
-                onClick={() =>
-                  setSettings({
-                    ...settings,
-                    video: {
-                      ...defaultSettings.video,
-                    },
-                  })
-                }
-              >
-                <span className={`mt-[7px]`}>Reset Default</span>
-              </div>
+              {/*<div*/}
+              {/*  className={`settings-panel-switch-container cursor-pointer hover:bg-yellow`}*/}
+              {/*  onClick={() =>*/}
+              {/*    setSettings({*/}
+              {/*      ...settings,*/}
+              {/*      video: {*/}
+              {/*        ...defaultSettings.video,*/}
+              {/*      },*/}
+              {/*    })*/}
+              {/*  }*/}
+              {/*>*/}
+              {/*  <span className={`mt-[7px]`}>Reset Default</span>*/}
+              {/*</div>*/}
             </div>
           )}
           {selectedItem === "Brightness" && (

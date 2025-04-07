@@ -99,21 +99,21 @@ const useWebSocket = ({
 
         if (data.device_type === "Camera") {
           if (data.msg === "StartStreaming") {
+            handleSnackBar("Streaming Enabled, Buffering......", "success");
             setTimeout(()=>{
               setSettings({
                 ...settings,
-                video:{
+                video: {
                   show_video: true,
                   video_url: `https://virtualwindow.cam/hls/${cookies.stream_key}/index.m3u8`
-                }
-              })
-            },2000)
+                },
+
+              });
+            },5000)
           }
 
           if(data.msg === "StopStreaming"){
-            setSnackbarMessage("Stop Streaming");
-            setSnackbarOpen(true);
-            setSnackbarSeverity("error");
+            handleSnackBar("Streaming Disabled", "error");
           }
         }
       };
@@ -160,6 +160,12 @@ const useWebSocket = ({
       }, 500),
       [cookies, deviceUUID], // Dependencies remain the same
   );
+
+  function handleSnackBar(message: string, severity: string) {
+    setSnackbarMessage(message);
+    setSnackbarSeverity(severity);
+    setSnackbarOpen(true);
+  }
 
   // Add this function to useWebSocket.tsx
   const disconnectSocket = useCallback(() => {

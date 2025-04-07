@@ -80,6 +80,7 @@ function Display({
     setDeviceUUID,
     setSnackbarOpen,
     setSnackbarMessage,
+    setSnackbarSeverity
   });
 
   useEffect(() => {
@@ -420,7 +421,7 @@ function Display({
                     hlsOptions: {
                       maxBufferLength: 30,
                       maxMaxBufferLength: 60,
-                      lowLatencyMode: false,
+                      lowLatencyMode: true,
                       backBufferLength: 30,
                       startLevel: -1,
                       debug: false,
