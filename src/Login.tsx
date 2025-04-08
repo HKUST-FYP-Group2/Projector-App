@@ -58,7 +58,6 @@ function Login({ deviceUUID, setDeviceUUID, setSettings }: LoginProps) {
               navigate("/");
             }, 1000);
             getUserSettings(data.token, data.user_id).then((res) => {
-              console.log("qrlogin setting", res);
               if (!res || res.status === 400) {
                 return;
               } else {
@@ -66,6 +65,9 @@ function Login({ deviceUUID, setDeviceUUID, setSettings }: LoginProps) {
                   setSettings(res.data.settings);
                 }
               }
+            });
+            getStreamUrl(data.token, data.user_id).then((res) => {
+              console.log(res);
             });
           }
         });

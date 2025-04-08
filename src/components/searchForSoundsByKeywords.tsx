@@ -44,7 +44,7 @@ const searchForSoundsByKeywords = async (
 
     // Search for sounds
     const response = await fetch(
-      `https://freesound.org/apiv2/search/text/?query=${encodeURIComponent(searchQuery)}&fields=id,name,previews,duration,username,url&page_size=15&filter=duration:[1 TO 120]`,
+      `https://freesound.org/apiv2/search/text/?query=${encodeURIComponent(searchQuery)}&fields=id,name,previews,duration,username,url&page_size=15`,
       {
         method: "GET",
         headers: {
