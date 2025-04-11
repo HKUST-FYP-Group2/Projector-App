@@ -162,6 +162,7 @@ function Display({
     return () => {
       debouncedPutSettings.cancel();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [settings]);
 
   // Fullscreen function
@@ -266,6 +267,7 @@ function Display({
   useEffect(() => {
     // handle audio fading
     const setupAudioFade = () => {
+      console.log("changed audio");
       if (!audioRef.current || !settings.sound.sound_url) return;
 
       // Reset audio element
@@ -356,12 +358,43 @@ function Display({
     }, 100);
   };
 
+  useEffect(() => {
+    if (settings.sound.sound_url) {
+      refreshAudio();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [settings.sound.sound_url, settings.sound.mode]);
+
   // Update volume directly
   useEffect(() => {
     if (audioRef.current && !(settings.sound.mode === "original")) {
       audioRef.current.volume = settings.sound.volume / 100;
     }
   }, [settings.sound.volume, settings.sound.mode]);
+
+  const refreshAudio = () => {
+    if (audioRef.current && settings.sound.sound_url) {
+      // Stop current playback
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+
+      // Remove and re-add event listeners to reset behavior
+      audioRef.current.removeEventListener("timeupdate", handleSimpleFade);
+      audioRef.current.removeEventListener("ended", handleSimpleLoop);
+
+      // Set initial volume
+      audioRef.current.volume = settings.sound.volume / 100;
+
+      // Re-add listeners
+      audioRef.current.addEventListener("timeupdate", handleSimpleFade);
+      audioRef.current.addEventListener("ended", handleSimpleLoop);
+
+      // Start playback
+      audioRef.current.play().catch((err) => {
+        console.error("Audio refresh failed:", err);
+      });
+    }
+  };
 
   return (
     <div
@@ -381,11 +414,15 @@ function Display({
           }
         }}
       ></div>
-
-      {/*//test button*/}
+      <audio
+        ref={audioRef}
+        src={settings.sound.sound_url || undefined}
+        style={{ display: "none" }}
+        muted={settings.sound.mode === "original"}
+      />
       {/*<button*/}
       {/*  onClick={() => {*/}
-      {/*    getUserSettings();*/}
+      {/*    refreshAudio();*/}
       {/*  }}*/}
       {/*  className={`bg-red-500 text-white p-2 rounded absolute top-0 right-0 m-2 z-50`}*/}
       {/*>*/}
@@ -454,11 +491,12 @@ function Display({
                       ...prevSettings,
                       video: {
                         ...prevSettings.video,
+                        mode: "manual",
                         show_video: true,
                       },
                     }));
                     //refresh page
-                    window.location.reload();
+                    // window.location.reload();
                   }, 5000);
                   setSnackbarMessage(
                     "Streaming currently unavailable, please change the source in Control App",
@@ -468,12 +506,6 @@ function Display({
                 }}
               />
             </div>
-            <audio
-              ref={audioRef}
-              src={settings.sound.sound_url || undefined}
-              style={{ display: "none" }}
-              muted={settings.sound.mode === "original"}
-            />
           </>
         )}
         {!settings.video.show_video && (
@@ -512,6 +544,7 @@ function Display({
             isBluetoothConnected={isBluetoothConnected}
             settings={settings}
             handleBluetoothSettings={handleBluetoothSettings}
+            audioRef={audioRef}
           />
 
           <Clock settings={settings} />

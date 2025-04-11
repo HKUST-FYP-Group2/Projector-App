@@ -5,9 +5,11 @@ import {
   FullscreenExitOutlined as FullscreenExitOutlinedIcon,
   FullscreenOutlined as FullscreenOutlinedIcon,
   Logout as LogoutIcon,
+  Pause as PauseIcon,
+  PlayArrow as PlayArrowIcon,
   Settings as SettingsIcon,
 } from "@mui/icons-material";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Settings from "./settings.ts";
 
 interface SettingsBarProps {
@@ -20,6 +22,7 @@ interface SettingsBarProps {
   isBluetoothConnected: boolean;
   settings: Settings;
   handleBluetoothSettings: () => void;
+  audioRef: React.RefObject<HTMLAudioElement>;
 }
 
 const SettingsBar = ({
@@ -32,8 +35,81 @@ const SettingsBar = ({
   isBluetoothConnected,
   settings,
   handleBluetoothSettings,
+  audioRef,
 }: SettingsBarProps) => {
   const [togglePanel, setTogglePanel] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
+
+  // Add an event listener to the audio element to update the state
+  useEffect(() => {
+    if (!audioRef.current) return;
+
+    const updatePlayingState = () => {
+      setIsAudioPlaying(!audioRef.current?.paused);
+    };
+
+    audioRef.current.addEventListener("play", updatePlayingState);
+    audioRef.current.addEventListener("pause", updatePlayingState);
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.removeEventListener("play", updatePlayingState);
+        audioRef.current.removeEventListener("pause", updatePlayingState);
+      }
+    };
+  }, [audioRef]);
+
+  const toggleAudio = () => {
+    if (audioRef.current) {
+      if (audioRef.current.paused) {
+        // Fade in
+        setIsAudioPlaying(true);
+        audioRef.current.volume = 0;
+        audioRef.current
+          .play()
+          .then(() => {
+            // Gradually increase volume
+            let currentVolume = 0;
+            const targetVolume = settings.sound.volume / 100;
+            const fadeInterval = setInterval(() => {
+              if (!audioRef.current) {
+                clearInterval(fadeInterval);
+                return;
+              }
+
+              currentVolume = Math.min(targetVolume, currentVolume + 0.05);
+              audioRef.current.volume = currentVolume;
+
+              if (currentVolume >= targetVolume) {
+                clearInterval(fadeInterval);
+              }
+            }, 50);
+          })
+          .catch((err) => {
+            console.error("Audio err:", err);
+          });
+      } else {
+        // Fade out
+        let currentVolume = audioRef.current.volume;
+        setIsAudioPlaying(false);
+        const fadeInterval = setInterval(() => {
+          if (!audioRef.current) {
+            clearInterval(fadeInterval);
+            return;
+          }
+
+          currentVolume = Math.max(0, currentVolume - 0.05);
+          audioRef.current.volume = currentVolume;
+
+          if (currentVolume <= 0) {
+            clearInterval(fadeInterval);
+            audioRef.current.pause();
+            audioRef.current.volume = settings.sound.volume / 100;
+          }
+        }, 50);
+      }
+    }
+  };
 
   if (!settings.settings_bar.show_settings_bar) return null;
 
@@ -106,6 +182,17 @@ const SettingsBar = ({
               <FullscreenExitOutlinedIcon fontSize="medium" />
             ) : (
               <FullscreenOutlinedIcon fontSize="medium" />
+            )}
+          </CustomizedTooltip>
+        </div>
+        <div onClick={toggleAudio} className={`display-buttons-style`}>
+          <CustomizedTooltip
+            title={`${isAudioPlaying ? "Pause Audio" : "Play Audio"}`}
+          >
+            {isAudioPlaying ? (
+              <PauseIcon fontSize="medium" />
+            ) : (
+              <PlayArrowIcon fontSize="medium" />
             )}
           </CustomizedTooltip>
         </div>

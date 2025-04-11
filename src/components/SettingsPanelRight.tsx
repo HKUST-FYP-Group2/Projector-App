@@ -65,25 +65,25 @@ const SettingsPanelRight = ({
               </div>
 
               <div
-                  className={`bg-blue-3 px-3 py-2 rounded flex flex-col mt-2 w-[80%]`}
+                className={`bg-blue-3 px-3 py-2 rounded flex flex-col mt-2 w-[80%]`}
               >
                 <span className="mb-1">Streaming URL</span>
                 <div className="flex w-full h-fit">
-                <input
-                  type="textarea"
-                  value={settings.video.video_url}
-                  onChange={(e) =>
-                    setSettings({
-                      ...settings,
-                      video: {
-                        ...settings.video,
-                        video_url: e.target.value,
-                      },
-                    })
-                  }
-                  className={`mr-0 ml-2 w-auto bg-transparent border-[1px] rounded px-1 h-fit`}
-                  style={{ flexGrow: 2 }}
-                />
+                  <input
+                    type="textarea"
+                    value={settings.video.video_url}
+                    onChange={(e) =>
+                      setSettings({
+                        ...settings,
+                        video: {
+                          ...settings.video,
+                          video_url: e.target.value,
+                        },
+                      })
+                    }
+                    className={`mr-0 ml-2 w-auto bg-transparent border-[1px] rounded px-1 h-fit`}
+                    style={{ flexGrow: 2 }}
+                  />
                 </div>
               </div>
               {/*<div*/}
@@ -170,11 +170,9 @@ const SettingsPanelRight = ({
                   >
                     <span>Keywords: &nbsp;</span>
                     <span>
-                      {settings.sound.mode === "manual"
-                        ? "Manual"
-                        : settings.sound.keywords?.length > 0
-                          ? settings.sound.keywords.slice(-2).join(", ")
-                          : "None"}
+                      {settings.sound.keywords?.length > 0
+                        ? settings.sound.keywords.slice(-2).join(", ")
+                        : "None"}
                     </span>
                     <span
                       className={`mr-0 ml-auto cursor-pointer text-gold hover:text-yellow`}
@@ -190,7 +188,7 @@ const SettingsPanelRight = ({
                     <span className="mb-1">Sound:</span>
                     <div className="flex w-full">
                       <span
-                        className={`break-all flex-1 hover:underline hover:text-yellow cursor-pointer`}
+                        className={`break-all flex-1 hover:underline hover:text-yellow ${settings.sound.sound_url ? "cursor-pointer" : ""}`}
                         style={{ wordBreak: "break-all" }}
                         onClick={() => {
                           if (settings.sound.sound_url) {
@@ -198,7 +196,9 @@ const SettingsPanelRight = ({
                           }
                         }}
                       >
-                        {settings.sound.sound_name}
+                        {settings.sound.mode === "auto"
+                          ? settings.sound.sound_name
+                          : settings.sound.sound_url}
                       </span>
                       <span
                         className={`flex-shrink-0 cursor-pointer text-gold hover:text-yellow ml-2`}
