@@ -23,6 +23,6 @@
   },
   "video": {
     "show_video": false,
-    "video_url": "https://virtualwindow.cam/hls/admin_key/index.m3u8"
+    "video_url": ""
   }
 }

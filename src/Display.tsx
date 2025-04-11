@@ -119,6 +119,16 @@ function Display({
       }
     });
 
+    if (settings.video.video_url === "") {
+      setSettings({
+        ...settings,
+        video: {
+          ...settings.video,
+          video_url: `https://virtualwindow.cam/hls/${cookies.stream_key}/index.m3u8`,
+        },
+      });
+    }
+
     //socket
     connectSocket();
 
@@ -131,6 +141,7 @@ function Display({
     return () => {
       document.removeEventListener("fullscreenchange", handleFullScreenChange);
     };
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -443,8 +454,11 @@ function Display({
                       ...prevSettings,
                       video: {
                         ...prevSettings.video,
+                        show_video: true,
                       },
                     }));
+                    //refresh page
+                    window.location.reload();
                   }, 5000);
                   setSnackbarMessage(
                     "Streaming currently unavailable, please change the source in Control App",
