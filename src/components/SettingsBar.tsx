@@ -54,6 +54,7 @@ const SettingsBar = ({
     return () => {
       if (audioRef.current) {
         audioRef.current.removeEventListener("play", updatePlayingState);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
         audioRef.current.removeEventListener("pause", updatePlayingState);
       }
     };
