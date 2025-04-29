@@ -163,13 +163,13 @@ const useBluetooth = (
     const received = new TextDecoder().decode(event.target.value);
     console.log(received);
     if (received === "bgm") {
-      setSettings({
-        ...settings,
-        sound:{
-          ...settings.sound,
-          mode: "auto"
-        }
-      })
+      // setSettings({
+      //   ...settings,
+      //   sound:{
+      //     ...settings.sound,
+      //     mode: "auto"
+      //   }
+      // })
       videoKeywordsGenerator().then((r) => console.log(r));
     } else {
       updateSettings(received);
