@@ -6,7 +6,7 @@ import searchForSoundsByKeywords from "./searchForSoundsByKeywords";
 interface GenerateVideoKeywordsProps {
   playerRef: React.RefObject<ReactPlayer>;
   settings: Settings;
-  setSettings: React.Dispatch<React.SetStateAction<Settings>>;
+  setSettings: (value: Settings) => void;
   setSnackbarOpen: (value: boolean) => void;
   setSnackbarMessage: (value: string) => void;
   setSnackbarSeverity: (value: "success" | "error") => void;
@@ -80,8 +80,13 @@ const generateVideoKeywords = ({
                 console.log(existingKeywords);
                 setSettings({
                   ...settings,
+                  video: {
+                    ...settings.video,
+                    show_video: true,
+                  },
                   sound: {
                     ...settings.sound,
+                    mode: "auto",
                     keywords: existingKeywords,
                   },
                 });

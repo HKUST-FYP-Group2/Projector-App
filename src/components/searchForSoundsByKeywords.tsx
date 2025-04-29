@@ -1,4 +1,4 @@
-import Settings from "./settings";
+import Settings from "./settings.ts";
 
 // Freesound API response types
 export interface FreesoundResult {
@@ -75,8 +75,13 @@ const searchForSoundsByKeywords = async (
 
       setSettings({
         ...settings,
+        video: {
+          ...settings.video,
+          show_video: true,
+        },
         sound: {
           ...settings.sound,
+          mode: "auto",
           sound_name: selectedSound.name,
           sound_url: soundUrl,
         },
