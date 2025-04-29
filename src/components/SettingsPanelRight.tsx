@@ -165,10 +165,10 @@ const SettingsPanelRight = ({
               {settings.sound.mode !== "original" && (
                 <>
                   <div
-                    className={`settings-panel-switch-container`}
+                    className={`settings-panel-switch-container break-all flex-1`}
                     style={{ display: "flex", alignItems: "center" }}
                   >
-                    <span>Keywords: &nbsp;</span>
+                    <span>Keywords: &nbsp; &nbsp;</span>
                     <span>
                       {settings.sound.keywords?.length > 0
                         ? settings.sound.keywords.slice(-2).join(", ")
