@@ -71,7 +71,7 @@ All projector settings are:
 Before deploying, ensure you have:
 
 - Node.js (v18 or higher)
-- npm or yarn installed
+- npm installed
 - Access to the backend server (Flask API + Socket.IO)
 - A valid SSL certificate if deploying publicly
 
